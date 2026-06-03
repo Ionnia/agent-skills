@@ -55,3 +55,6 @@ build/
 coverage/
 .cache/
 *.tmp
+
+# Shell scripts
+*.sh
