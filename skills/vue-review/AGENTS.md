@@ -1,74 +1,77 @@
 # Maintainer notes — `vue-review`
 
-Read this before editing this skill. It exists because the skill has **deliberate duplication**
-that is easy to break.
+Read this before editing this skill.
 
 ## File layout
 
 `SKILL.md` is a thin **dispatcher**: an intro, a Modes section that routes to one of two references,
-and the shared **Output Format** (kept here because both modes emit the same report and `SKILL.md`
-is always in context). Both references are loaded by the **main** agent (which still has `SKILL.md`
-in context, so they may reference it and each other freely):
+the shared **Branch reviews** and **Severity scale** sections, and the shared **Output Format**
+(kept in `SKILL.md` because both modes emit the same report and `SKILL.md` is always in context).
+Both references are loaded by the **main** agent (which still has `SKILL.md` in context, so they may
+reference it and each other freely):
 
-- `references/normal-mode.md` — the single-agent review path: relevant-skills list, Review Process
-  (incl. branch/merge-base guidance and the base-picking heuristic), Severity Scale, Backward
-  Compatibility Check, and the section definitions. Defers formatting to `SKILL.md`'s Output Format.
-- `references/max-mode.md` — the parallel-subagents orchestration; its compile step formats per the
-  Output Format in `SKILL.md`.
+- `references/normal-mode.md` — the single-agent review path and the **single source of truth** for
+  the relevant-skills list, the Review Process (incl. the branch/merge-base mechanic and the
+  base-picking heuristic), and the four section definitions (Backward Compatibility, Bugs /
+  Correctness, Best Practices, Suggestions) plus the "Attention to detail" rigor pass. Defers the
+  output format and severity scale to `SKILL.md`.
+- `references/max-mode.md` — the parallel-subagents orchestration. The main agent resolves the
+  review target once, then launches four subagents (one per section), **each of which invokes this
+  same `vue-review` skill in Normal Mode** scoped to the resolved files and assigned a single section
+  to analyze exhaustively. The compile step formats per the Output Format in `SKILL.md`.
 
-## Why blocks are duplicated (don't "fix" it by extracting)
+## No templates — Max Mode subagents run the skill
 
-The four files in `templates/` are each loaded **standalone** into a Max Mode subagent's prompt —
-the subagent never sees `SKILL.md` or the references. So every template must be **self-contained**:
-it repeats the "Apply relevant skills" list, the "Read the code first" / "Branch reviews" guidance,
-the severity scale, and the output format. `references/normal-mode.md` repeats the same blocks for
-the normal single-agent path.
+There are intentionally **no `templates/`**. Earlier versions duplicated each section's prompt into a
+standalone template that was loaded into a Max Mode subagent (which never saw `SKILL.md` or the
+references). That duplication is **gone**: a Max Mode subagent now **applies the skill itself**
+(Normal Mode) on the orchestrator-narrowed scope and is told to focus on one section. So the section
+definitions, severity scale, and review guidance live in exactly **one** place —
+`references/normal-mode.md` + `SKILL.md` — and are reused by both the single-agent path and the Max
+Mode subagents.
 
-This duplication is intentional. Do **not** replace it with `@import`/include indirection —
-subagent prompts can't follow cross-file references reliably. (The two `references/` files are the
-exception: they're read by the main agent, so they cross-reference each other rather than duplicate.)
+Do **not** reintroduce per-section template files or otherwise re-fork the section guidance. If a
+section needs sharper instructions, edit its definition in `references/normal-mode.md` so both paths
+get it.
 
-## Sync points — edit a shared block, update it EVERYWHERE it appears
+**Avoid recursion.** Max Mode subagents must run a **single-agent (Normal Mode)** review — they must
+never re-enter Max Mode, or the fan-out would nest. `references/max-mode.md` states this explicitly;
+keep it.
 
-| Shared block | Lives in |
-|---|---|
-| Relevant-skills list (`vue`, `vue-best-practices`, conditional rest) | `references/normal-mode.md` + all 4 templates |
-| "Read the code first" + branch-review **merge-base mechanic** | `references/normal-mode.md` (Review Process) + all 4 templates |
-| Version-gating guidance (resolve version first; defer to loaded skills) | `references/normal-mode.md` step 2 + `bugs-correctness.md` + `suggestions.md` |
-| Severity scale | `references/normal-mode.md` + each template's per-section scale |
-| Per-finding output format (italic labels, `file:line`, "None.") | `SKILL.md` Output Format + each template's Output section |
+## Branch handling
 
-**Branch handling — mind the split.** The merge-base *mechanic* (review the point-of-divergence
-diff) is repeated in `references/normal-mode.md` and all 4 templates, so keep it consistent. But the
-base-*picking heuristic* (which base to choose when it's ambiguous — the `dev → preprod → master`
-reasoning) lives **only** in `references/normal-mode.md`, by design: base selection is the
-orchestrator's job. In Max Mode the main agent resolves
-the diff range once and passes it down; the templates must **not** pick a base — they review the
-range they're handed and stop to ask the orchestrator if no range was given. Do not copy the
-heuristic into the templates (it would risk four subagents diverging on the base).
+The merge-base **mechanic** (review the point-of-divergence diff) and the base-**picking heuristic**
+(`dev → preprod → master`) both live in `references/normal-mode.md` → Review Process. In Max Mode the
+main agent resolves the diff range **once** and passes the already-narrowed scope to every subagent,
+so the subagents neither pick a base nor widen the scope. Keep base selection in the
+orchestrator/normal-mode path — never push it onto the subagents.
 
 ## Invariants
 
 - **Vue 3 only.** Resolve the project's Vue version before applying any version-gated rule.
-- **Severity labels are compact *italic*** — `*Crit.*`, `*High*`, `*Med.*`, `*Low*`, `*Sugg.*`.
-  Not bold, not Unicode-underline (older versions used underline; do not reintroduce it).
-- **Severity scope per bucket:** only the Suggestions bucket emits `*Sugg.*`. The other three
-  buckets emit only `*Crit.* / *High.* / *Med.* / *Low*`.
+- **Severity labels are compact _italic_** — `_Crit._`, `_High_`, `_Med._`, `_Low_`, `_Sugg._`.
+  Not bold, not Unicode-underline (older versions used bold/underline; do not reintroduce either).
+- **Severity scope per bucket:** only the Suggestions bucket emits `_Sugg._`. The other three
+  buckets emit only `_Crit._ / _High_ / _Med._ / _Low_`.
 - **Bump the version on every change.** Any substantive edit to this skill (output format, prompts,
-  references, templates) must bump `metadata.version` in `SKILL.md` per semver. Mirror the same bump
-  in the sibling `vue-rureview` so the twins stay in lockstep.
+  references, orchestration) must bump `metadata.version` in `SKILL.md` per semver. Mirror the same
+  bump in the sibling `vue-rureview` so the twins stay in lockstep.
 
 ## Sibling skill — keep in sync
 
 `vue-rureview` is the Russian-output twin of this skill. **Mirror every substantive change to both.**
-The ONLY intended divergence is output language:
+With templates gone, the files map one-to-one and differ **only** by output language:
 
-- This skill emits English headings/labels and a `Context:` line.
-- `vue-rureview` emits Russian headings (Обратная совместимость, Ошибки / Корректность, …),
-  Russian italic labels (`*Крит.*`, `*Выск.*`, `*Сред.*`, `*Низк.*`, `*Улчш.*`), and a
-  `Контекст:` line.
-- The `templates/` files are **identical** between the two skills — subagents work in English and
-  the compile step translates to Russian. So a template edit here must be copied verbatim to
-  `vue-rureview/templates/`.
+- `references/normal-mode.md` is **byte-identical** between the twins (all-English review
+  instructions; the reason-in-English/output-in-Russian directive lives only in `vue-rureview/SKILL.md`).
+- `references/max-mode.md` differs **only** in the skill name the subagents are told to apply
+  (`vue-review` vs `vue-rureview`) and the trailing note that `vue-rureview` subagents already return
+  Russian findings.
+- `SKILL.md` differs **only** by language: this skill emits English headings/labels; `vue-rureview`
+  emits Russian headings (Обратная совместимость, Ошибки / Корректность, …), Russian italic labels
+  (`_Крит._`, `_Выск._`, `_Сред._`, `_Низк._`, `_Улчш._`), and the `Нет.` empty-section marker.
 
-`CLAUDE.md` in this folder is a symlink to this file.
+Because each twin's subagents apply that twin's own skill, `vue-rureview` subagents already produce
+Russian findings — there is no separate translate step at compile time.
+
+`CLAUDE.md` in this folder is a symlink to this file (`AGENTS.md`).
