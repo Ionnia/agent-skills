@@ -4,7 +4,7 @@
   "groupings": [
     {
       "title": "Vue",
-      "description": "Senior Vue 3 code review skills for components, composables, and frontend code.",
+      "description": "Vue 3 code review skills for components, composables, and frontend code.",
       "skills": [
         "vue-review",
         "vue-rureview"
