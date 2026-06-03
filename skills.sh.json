@@ -1,0 +1,14 @@
+{
+  "$schema": "https://skills.sh/schemas/skills.sh.schema.json",
+  "notGrouped": "bottom",
+  "groupings": [
+    {
+      "title": "Vue",
+      "description": "Senior Vue 3 code review skills for components, composables, and frontend code.",
+      "skills": [
+        "vue-review",
+        "vue-rureview"
+      ]
+    }
+  ]
+}
