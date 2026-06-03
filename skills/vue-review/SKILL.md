@@ -43,4 +43,4 @@ Start by checking `dev` -> `preprod/prerelease/staging` -> `master/main`. Confir
 - Use compact italic severity labels: _Crit._, _High_, _Med._, _Low_, _Sugg._
 - If the exact line is unknown, omit the line number but keep the file path.
 - If a section has no findings, write "None."
-- End with a summary line: overall severity (highest level found) and total finding count by severity.
+- End with a summary line: overall severity (highest level found) and total finding count by severity. Example: Summary: overall severity — 🟡 _Med_.; Findings: 🟡 6, 🔵 1, ⚪ 6.
