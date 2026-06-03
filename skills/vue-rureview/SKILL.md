@@ -3,7 +3,7 @@ name: vue-rureview
 description: Use when asked to review Vue 3 code. Do not use simultaneously with vue-review.
 license: MIT
 metadata:
-  author: local
+  author: Ionnia
   version: "1.2.0"
 ---
 
