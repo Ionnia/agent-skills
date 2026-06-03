@@ -54,6 +54,9 @@ heuristic into the templates (it would risk four subagents diverging on the base
   Not bold, not Unicode-underline (older versions used underline; do not reintroduce it).
 - **Severity scope per bucket:** only the Suggestions bucket emits `*Sugg.*`. The other three
   buckets emit only `*Crit.* / *High.* / *Med.* / *Low*`.
+- **Bump the version on every change.** Any substantive edit to this skill (output format, prompts,
+  references, templates) must bump `metadata.version` in `SKILL.md` per semver. Mirror the same bump
+  in the sibling `vue-rureview` so the twins stay in lockstep.
 
 ## Sibling skill — keep in sync
 
