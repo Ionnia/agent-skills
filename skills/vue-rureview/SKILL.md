@@ -4,7 +4,7 @@ description: Use when asked to review Vue 3 code. Do not use simultaneously with
 license: MIT
 metadata:
   author: Ionnia
-  version: "1.4.0"
+  version: "1.4.1"
 ---
 
 # Vue Code Review
