@@ -31,7 +31,7 @@
 Рекомендуемый способ — установить скиллы из этого репозитория через CLI [skills.sh](https://www.skills.sh):
 
 ```sh
-npx skills add https://github.com/Ionnia/agent-skills
+npx skills add Ionnia/agent-skills
 ```
 
 После установки запустите новую сессию агента — скиллы подхватываются автоматически.
