@@ -29,6 +29,6 @@ This skill runs in one of two modes. Pick the matching one and follow its refere
 - Use compact italic severity labels: *Крит.*, *Выск.*, *Сред.*, *Низк.*, *Улчш.*
 - If the exact line is unknown, omit the line number but keep the file path.
 - If a section has no findings, write "Нет."
-- Add a **Версии пакетов** line near the end (just before the summary): list the resolved versions of the key ecosystem packages from `package.json` — vue, typescript, vitest, vite, `@vueuse/core`, `@vue/test-utils`, plus pinia / vue-router / nuxt when present — each with the version range exactly as written. Annotate the source in Russian (`из package.json`). When reviewing a branch, also state the merge base used (`база ветки — <branch>`). Example:
-  `Версии пакетов: vue ^3.5.13, typescript ~5.7.3, vitest ^4.0.18, vite ^6.2.0, @vueuse/core ^14.2.1, @vue/test-utils ^2.4.6 (из package.json); база ветки — dev`
+- Add a **Контекст** line near the end (just before the summary): resolve the Vue version from `package.json` and state its *minor* (minor only — no caret/patch, and don't print the source), plus the merge base used when reviewing a branch (`база ветки — <branch>`). Don't list the other ecosystem packages by default — surface a package's version only when a specific finding actually gates on it, inline at that finding. Example:
+  `Контекст: Vue 3.5; база ветки — dev`
 - End with a summary line: overall severity (highest level found) and total finding count by severity.

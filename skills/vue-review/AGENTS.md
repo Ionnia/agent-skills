@@ -60,10 +60,10 @@ heuristic into the templates (it would risk four subagents diverging on the base
 `vue-rureview` is the Russian-output twin of this skill. **Mirror every substantive change to both.**
 The ONLY intended divergence is output language:
 
-- This skill emits English headings/labels and a `Version context:` line.
+- This skill emits English headings/labels and a `Context:` line.
 - `vue-rureview` emits Russian headings (Обратная совместимость, Ошибки / Корректность, …),
   Russian italic labels (`*Крит.*`, `*Выск.*`, `*Сред.*`, `*Низк.*`, `*Улчш.*`), and a
-  `Версии пакетов:` line.
+  `Контекст:` line.
 - The `templates/` files are **identical** between the two skills — subagents work in English and
   the compile step translates to Russian. So a template edit here must be copied verbatim to
   `vue-rureview/templates/`.

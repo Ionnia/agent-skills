@@ -56,7 +56,7 @@ heuristic into the templates (it would risk four subagents diverging on the base
   `references/max-mode.md` **translates to Russian** and applies the Russian headings/labels.
 - `SKILL.md`'s Output Format is the only place with Russian headings (Обратная совместимость, …),
   Russian italic labels (`*Крит.*`, `*Выск.*`, `*Сред.*`, `*Низк.*`, `*Улчш.*`), the `Нет.`
-  empty-section marker, and the `Версии пакетов:` line.
+  empty-section marker, and the `Контекст:` line.
 
 ## Invariants
 
@@ -70,7 +70,7 @@ heuristic into the templates (it would risk four subagents diverging on the base
 
 `vue-review` is the English-output twin of this skill. **Mirror every substantive change to both.**
 The ONLY intended divergence is output language (see "Language model" above): `vue-review` emits
-English headings/labels and a `Version context:` line. The `templates/` files are **identical**
+English headings/labels and a `Context:` line. The `templates/` files are **identical**
 between the two skills, so a template edit here must be copied verbatim to `vue-review/templates/`.
 
 `CLAUDE.md` in this folder is a symlink to this file.
