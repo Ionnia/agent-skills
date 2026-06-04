@@ -4,7 +4,7 @@ description: Use when asked to review Vue 3 code. Do not use simultaneously with
 license: MIT
 metadata:
   author: Ionnia
-  version: "1.4.1"
+  version: "1.4.2"
 ---
 
 # Vue Code Review
@@ -18,15 +18,22 @@ This skill runs in one of two modes:
 - **Max Mode** — triggered when the skill is invoked with the word `max` after the skill name (e.g. `vue-rureview max`). Follow **`references/max-mode.md`**.
 - **Normal Mode** — the default for any invocation without `max`. Single-agent review. Follow **`references/normal-mode.md`**.
 
-## Branch reviews
+## Branch Reviews
 
-When reviewing changes in a branch, always compare against the point of divergence from the base branch — not against its current head. Use `git merge-base <base> <branch>` to find the divergence point, then `git diff <merge-base>...<branch>` to see only the commits introduced by the branch. Never include unrelated upstream changes that landed in the base after the branch was cut.
+When reviewing changes in a branch, always compare against the point of divergence from the base branch, not against the base branch's current head. Use `git merge-base <base> <branch>` to find the divergence point, then `git diff <merge-base>...<branch>` to review only the commits introduced by the branch. Never include unrelated upstream changes that landed in the base after the branch was cut.
 
-### Finding the base
+### Finding The Base
 
-Try bases in this order until one fits: `dev`, then `preprod`/`prerelease`/`staging`, then `master`/`main`.
+Check all likely base branches before choosing: `dev`, `preprod` / `prerelease` / `staging`, `master` / `main`
+Do not stop after the first candidate that produces a merge base. A merge base can exist for many branches; that alone does not prove it is the correct review base.
 
-Sanity-check the result: a correct base yields a diff scoped to the branch's purpose. If the diff is unexpectedly large or full of files unrelated to the task, you've likely picked the wrong base — try the next one. If it stays ambiguous, ask the user rather than guessing.
+Sanity-check each result. A correct base usually yields a diff scoped to the branch's purpose: changed files, file count, and line count should match the feature/fix being reviewed. If the diff is unexpectedly large, includes unrelated subsystems, or looks like it contains upstream work from another branch, that candidate is probably the wrong base.
+
+If multiple candidate bases produce equally plausible scoped diffs, prefer them in this order: `dev` > `preprod` / `prerelease` / `staging` > `master` / `main`
+
+If one lower-priority base clearly produces the only scoped, task-relevant diff while a higher-priority base includes unrelated changes, choose the lower-priority base. The priority order is only a tie-breaker between equally good matches, not a reason to skip checking later candidates.
+
+If the result remains ambiguous after comparing all candidates, ask the user which base branch should be used rather than guessing.
 
 ## Severity scale
 
