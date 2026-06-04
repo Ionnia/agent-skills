@@ -22,7 +22,11 @@ This skill runs in one of two modes:
 
 When reviewing changes in a branch, always compare against the point of divergence from the base branch — not against its current head. Use `git merge-base <base> <branch>` to find the divergence point, then `git diff <merge-base>...<branch>` to see only the commits introduced by the branch. Never include unrelated upstream changes that landed in the base after the branch was cut.
 
-Start by checking `dev` -> `preprod/prerelease/staging` -> `master/main`. Confirm with the user if it's ambiguous.
+### Finding the base
+
+Try bases in this order until one fits: `dev`, then `preprod`/`prerelease`/`staging`, then `master`/`main`.
+
+Sanity-check the result: a correct base yields a diff scoped to the branch's purpose. If the diff is unexpectedly large or full of files unrelated to the task, you've likely picked the wrong base — try the next one. If it stays ambiguous, ask the user rather than guessing.
 
 ## Severity scale
 
