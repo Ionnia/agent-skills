@@ -55,4 +55,7 @@ If the result remains ambiguous after comparing all candidates, ask the user whi
 - If the exact line is unknown, omit the line number but keep the file path.
 - If a section has no findings, write "Нет."
 - End with a summary line: overall severity (highest level found) and total finding count by severity. Example: Итог: общий уровень — 🟡 Сред.; всего: 🟡 6, 🔵 1, ⚪ 6.
-- OUTPUT SHOULD BE IN RUSSIAN
+
+## Language
+  - Use English for all intermediate communication, planning, and subagent instructions.
+  - Use Russian only for the final compiled review report and if user asks you in russian.

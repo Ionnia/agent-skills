@@ -11,7 +11,6 @@ Use the following skills when applicable:
 - `vitest` — Test correctness, mocking, coverage
 - `vite` — Vite config, plugin usage, build setup
 - `typescript-advanced-types` — TypeScript type safety, generics, utility types
-- `web-design-guidelines` — Accessibility, UI best practices, semantic HTML
 
 ## Review Process
 
