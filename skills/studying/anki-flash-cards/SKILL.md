@@ -1,6 +1,6 @@
 ---
 name: anki-flash-cards
-description: Use when creating Anki flashcards from notes, screenshots, textbook passages, lecture slides, or any study material.
+description: Use when creating Anki flashcards
 license: MIT
 metadata:
   author: Ionnia
@@ -33,6 +33,10 @@ Put any mathematical or scientific notation in LaTeX so it renders in Anki via M
 - **Block / display** (on its own line): `\[ ... \]` — e.g. `\[ E = mc^2 \]`
 
 MathJax expects standard TeX; chemistry works via mhchem, e.g. `\(\ce{H2O}\)`. Cloze deletions interact with LaTeX braces — [references/cloze.md](references/cloze.md) covers the fix.
+
+## Use diagrams when a picture carries the idea
+
+Some material recalls better as a figure than a sentence — a labelled structure, a process flow, the shape of a graph. When a diagram genuinely aids recall, **generate it as inline SVG** and drop it straight into the card's HTML field (Anki renders fields as HTML). SVG is vector-crisp at any zoom, self-contained, and — when inlined in the field with `currentColor` — adapts to Anki's night mode automatically. Don't force a diagram where prose is clearer. → [references/diagrams.md](references/diagrams.md) covers the authoring rules (viewBox, self-contained styling, accessibility), night-mode safety, design principles for beautiful figures, and a reusable template.
 
 ## Choose the note type
 
@@ -75,4 +79,4 @@ Once both gates pass, add the cards:
 }
 ```
 
-Useful AnkiConnect actions: `deckNames` (list existing decks to confirm the target), `createDeck` (make a new one), `addNote` / `addNotes` (add). Every response is `{ "result": ..., "error": null }` — check `error` on each and report failures (duplicate notes, a missing note type, empty fields) back to the user rather than silently dropping cards.
+Useful AnkiConnect actions: `deckNames` (list existing decks to confirm the target), `createDeck` (make a new one), `addNote` / `addNotes` (add). A response is `{ "result": ..., "error": null }`; a non-null top-level `error` means the whole call failed. Note `addNotes` is partial-success: on a null top-level `error` its `result` is an array of new note IDs with a `null` in the slot of any note that couldn't be added (e.g. a duplicate) — inspect the array for `null`s, not just the top-level `error`, and report which cards were dropped (duplicate notes, a missing note type, empty fields) back to the user rather than silently losing them.
