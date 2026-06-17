@@ -60,6 +60,16 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 
 `template.html` ships with a built-in sample conspect, so it can be opened directly for a design preview before injection.
 
+### 6. Clean up
+
+The spliced `<conspect-name>.html` is fully self-contained — figures are inlined, no assets are referenced. So once it is validated and delivered, **delete every temporary file the build produced**, leaving the `.html` as the only artifact in the output location. Remove:
+
+- the data expression temp file (`data.js` or whatever you named it);
+- any source/intermediate images fed to `scripts/image-to-inline.py` (the WebP is already inlined into the HTML);
+- any other scratch files, caches, or partial copies created in the output directory during the build.
+
+Do **not** touch the user's own input materials or anything in the skill directory itself (`template.html`, `scripts/`, `references/`). Verify after deletion that the output location contains the `.html` and nothing else the build created.
+
 ## Hard rules
 
 - Always read `references/format.md` before writing any conspect data.
@@ -70,6 +80,7 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 - `selfcheck` and `attention` blocks only where they earn their place; an attention block with no real pitfall is noise.
 - Conspect language matches the user's materials/request; template UI language is set via the `lang` field.
 - The deliverable is `<conspect-name>.html` built from a copy of the bundled `template.html` — never hand-write the HTML shell, never modify `template.html` itself.
+- After the `.html` is validated and delivered, delete all temporary build files (data expression, intermediate/source images, scratch files). The `<conspect-name>.html` must be the only artifact left in the output location; never remove the user's input materials or the skill's own files.
 
 ## References
 
