@@ -9,6 +9,21 @@
         "vue-review",
         "vue-rureview"
       ]
+    },
+    {
+      "title": "Productivity",
+      "description": "Skills for managing day-to-day workflows like scheduling and calendar planning.",
+      "skills": [
+        "calendar-management"
+      ]
+    },
+    {
+      "title": "Studying",
+      "description": "Skills for learning: building Anki flashcards and writing study notes (conspects).",
+      "skills": [
+        "anki-flash-cards",
+        "write-conspect"
+      ]
     }
   ]
 }
