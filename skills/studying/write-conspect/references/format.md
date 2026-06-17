@@ -58,19 +58,25 @@ A block is a discriminated union on `type`. Fields marked *html* accept the HTML
 { type: "example", title: /* optional plain */, html: /* html */ }
 ```
 
-**`image` — figure or figure placeholder.**
+**`image` — figure. Always carries a real figure, never a description.** Exactly one of `svg` / `canvas` / `src` is present.
 
 ```js
-{ type: "image", src: /* optional string */, placeholder: /* optional plain, \n = line break */, caption: /* optional plain */, aspect: /* optional, e.g. "16/9" */ }
+{ type: "image",
+  svg:    /* html: raw <svg>…</svg> markup (DEFAULT — schematic figures)        */,
+  canvas: { draw: /* js: source of a function (ctx, w, h, colors) for dense data */ },
+  src:    /* string: "data:image/webp;base64,…" from scripts/image-to-inline.py  */,
+  caption: /* optional plain */, aspect: /* optional, e.g. "16/9" — sizes canvas/src */ }
 ```
 
-With no `src`, the template renders a styled placeholder box showing the `placeholder` text — use it to describe precisely the figure you intend ("График f(x) с выколотой точкой в x = a...").
+Choose the mechanism by the decision rule in [diagrams.md](diagrams.md): **SVG** for schematic figures (default), **canvas** only for genuinely dense procedural data (thick scatter, heatmaps, fractals), **src** (inlined WebP via `scripts/image-to-inline.py`) only for real imagery that cannot be drawn as vector. The legacy `placeholder` field still renders for old conspects but must not be used in new ones.
 
 **`selfcheck` — self-check questions with collapsible answers.**
 
 ```js
 { type: "selfcheck", items: [ { q: /* html */, a: /* optional html */ } ] }
 ```
+
+The question number (`1.`, `2.`, …) is prepended automatically via a CSS counter as **inline** content. So `q` must **start with inline content — do not wrap it in `<p>`** (or any block element): a leading block pushes the number onto its own line. Inline markup (`<em>`, `<code>`, tooltips) and math `\( … \)` are fine. The answer `a` renders without a counter, so it may use `<p>` and other block elements freely.
 
 **`resources` — further reading. Place last in a topic's blocks.**
 
@@ -167,8 +173,11 @@ const ids = [];
     if (typeof t.title !== "string" || !t.title) throw new Error(t.id + ": title missing");
     if (!Array.isArray(t.blocks) || t.blocks.length === 0 || t.blocks[0].type !== "prereq")
       throw new Error(t.id + ": first block must be type prereq");
-    for (const blk of t.blocks)
+    for (const blk of t.blocks) {
       if (!known.includes(blk.type)) throw new Error(t.id + ": unknown block type " + JSON.stringify(blk.type));
+      if (blk.type === "image" && !blk.svg && !blk.canvas && !blk.src)
+        console.warn("WARN " + t.id + ": image block has no svg/canvas/src (placeholder is deprecated)");
+    }
     if (t.children) walk(t.children);
   }
 })(data.topics);
@@ -236,7 +245,7 @@ f(x) стремится к L».</p>
           type: "selfcheck",
           items: [
             {
-              q: String.raw`<p>Чему равен \( \lim_{x \to 2} \frac{x^2 - 4}{x - 2} \), хотя функция в точке 2 не определена?</p>`,
+              q: String.raw`Чему равен \( \lim_{x \to 2} \frac{x^2 - 4}{x - 2} \), хотя функция в точке 2 не определена?`,
               a: String.raw`<p>Сократите: \( \frac{(x-2)(x+2)}{x-2} = x + 2 \) при \( x \neq 2 \), значит предел равен 4.</p>`
             }
           ]
@@ -311,7 +320,7 @@ $$ \lim_{h \to 0} \frac{2xh + h^2}{h} = \lim_{h \to 0} (2x + h) $$
               type: "selfcheck",
               items: [
                 {
-                  q: String.raw`<p>Найдите производную \( \sin(x^2) \).</p>`,
+                  q: String.raw`Найдите производную \( \sin(x^2) \).`,
                   a: String.raw`<p>\( \cos(x^2) \cdot 2x \) — производная внешней функции в точке «внутренняя», умноженная на производную внутренней.</p>`
                 }
               ]

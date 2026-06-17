@@ -58,3 +58,9 @@ coverage/
 
 # Shell scripts
 *.sh
+
+# Python
+__pycache__/
+*.pyc
+
+docs

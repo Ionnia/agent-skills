@@ -44,7 +44,7 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 6. **Several concrete examples with different surface features**, so the idea transfers instead of binding to one case.
 7. **Refute misconceptions head-on** where they really exist: state the wrong belief, why it's tempting, why it's wrong, then the correct version — that's what `attention` blocks are for.
 8. **Self-check means retrieval, not recognition.** Questions force recall or application, answers included, an occasional question reaching back to earlier topics. Add them where a concept boundary warrants it — not mechanically everywhere.
-9. **Dual coding.** Pair prose with a figure where a picture genuinely carries the idea; without an image source, write a precise placeholder describing the intended figure.
+9. **Dual coding.** Pair prose with a figure where a picture genuinely carries the idea. **Always generate a real figure**, never a text description — inline SVG by default, canvas for dense data, or an inlined WebP raster as a last resort. See [references/diagrams.md](references/diagrams.md) for the decision rule and authoring rules.
 10. **Define every term at first use** — tooltips for in-place definitions; keep terminology consistent thereafter.
 11. **Simplify the path, not the destination.** Never dumb down the final claim; build up to it.
 12. **Cut tangents.** Everything must serve the topic's learning objective; extraneous detail is cognitive load.
@@ -53,9 +53,9 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 
 **Read [references/format.md](references/format.md) before producing any data** — it defines the exact `window.CONSPECT` schema, block types, math/tooltip conventions, the injection markers, and a validation command. Then:
 
-1. Build the data object for the whole conspect.
+1. Build the data object for the whole conspect. For each `image` block, generate a real figure per [references/diagrams.md](references/diagrams.md) — SVG (default), canvas (dense data), or an inlined WebP from `scripts/image-to-inline.py` (real imagery only).
 2. Copy the bundled `template.html` to `<conspect-name>.html` and splice the data between the injection markers as described in format.md.
-3. Validate with the command from format.md.
+3. Validate with the command from format.md (it warns on any `image` block left without a figure).
 4. Deliver the file where the user expects output — ask or infer from context.
 
 `template.html` ships with a built-in sample conspect, so it can be opened directly for a design preview before injection.
@@ -66,6 +66,7 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 - Always plan the full outline (step 4) before writing any topic content.
 - Prerequisite ordering is non-negotiable: no topic may depend on a later one. Every topic's first block is its `prereq` block.
 - Formulas are always LaTeX via MathJax — never unicode pseudo-math (`x²`, `→`, `∑` in prose-math) and never images of formulas.
+- Every `image` block renders a real figure (`svg`/`canvas`/`src`) — never ship the legacy text `placeholder` in a new conspect. Default to inline SVG; see `references/diagrams.md`.
 - `selfcheck` and `attention` blocks only where they earn their place; an attention block with no real pitfall is noise.
 - Conspect language matches the user's materials/request; template UI language is set via the `lang` field.
 - The deliverable is `<conspect-name>.html` built from a copy of the bundled `template.html` — never hand-write the HTML shell, never modify `template.html` itself.
@@ -74,3 +75,4 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 
 - [references/pedagogy.md](references/pedagogy.md) — evidence-based writing rules by phase: planning, explaining, examples, self-check design, common-mistakes callouts.
 - [references/format.md](references/format.md) — data schema, injection procedure, validation, template behaviors.
+- [references/diagrams.md](references/diagrams.md) — figure decision rule and authoring rules for SVG, canvas, and inlined raster.
