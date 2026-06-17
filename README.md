@@ -1,6 +1,6 @@
 # agent-skills
 
-Это мой личный проект, где я храню и развиваю собственные скиллы для агента (agent skills).
+Это мой личный проект, где я храню и развиваю собственные скиллы для агентов
 
 ## Скиллы
 
@@ -22,6 +22,7 @@
   Зависимости для добавления карточек в Anki (одно из двух):
   - [AnkiConnect](https://ankiweb.net/shared/info/2055492159) ([GitHub](https://github.com/FooSoft/anki-connect)) — аддон для Anki, открывает HTTP-API на `http://127.0.0.1:8765`. Anki должен быть запущен.
   - [anki-mcp-server](https://github.com/ankimcp/anki-mcp-server) (`@ankimcp/anki-mcp-server`, [ankimcp.ai](https://ankimcp.ai)) — MCP-сервер поверх AnkiConnect; предпочтительный способ, если подключён как MCP-инструмент.
+
 - **write-conspect** — написание конспекта (study notes) по теме или материалам пользователя: планирует структуру, пишет объяснения уровня преподавателя и формирует итоговый отдельный HTML-файл.
 
 ## Зависимые скиллы
