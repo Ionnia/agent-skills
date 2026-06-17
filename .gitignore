@@ -35,6 +35,10 @@ $RECYCLE.BIN/
 .cursor/
 .aider*
 
+# Per-skill agent instruction files (generated/local)
+skills/**/AGENTS.md
+skills/**/CLAUDE.md
+
 # Node
 node_modules/
 npm-debug.log*
