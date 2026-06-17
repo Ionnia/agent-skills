@@ -1,10 +1,10 @@
 ---
 name: write-conspect
-description: Use when writing study notes (a conspect / конспект) on a topic or from user-provided materials — lecture notes, textbook passages, slides, or an exam question list. Plans a pedagogically ordered outline, writes teacher-grade explanations, and renders them as a standalone HTML file from the bundled template.
+description: Use when writing study notes (a conspect / конспект) on a topic or from user-provided materials — lecture notes, textbook passages, slides, or an exam question list. Plans a pedagogically ordered outline, researches and fact-checks each topic against high-quality sources, writes teacher-grade explanations, and renders them as a standalone HTML file from the bundled template.
 license: MIT
 metadata:
   author: Ionnia
-  version: "0.0.1"
+  version: "0.1.0"
 ---
 
 # Write Conspect
@@ -17,7 +17,7 @@ Write all conspect content in the **language of the user's request and materials
 
 ### 1. Understand the subject
 
-Ingest everything the user provided (notes, textbook excerpts, slides, question lists). If your knowledge of the topic is thin, the field moves fast, or the user's materials reference things you can't ground — **web-search before planning**. Never outline a subject you don't understand end to end.
+Ingest everything the user provided (notes, textbook excerpts, slides, question lists). Get enough of a grip on the subject to structure it correctly: if your knowledge is thin, the field moves fast, or the materials reference things you can't ground, do **orientation-level research now** — a quick pass over authoritative sources (the quality bar is detailed in step 4) to map the subject's main parts and their dependencies. Never outline a subject you don't understand end to end. This pass is for *structure* only; the deep, topic-by-topic fact-checking happens *after* the outline, in step 4.
 
 ### 2. Decide the depth of elaboration
 
@@ -32,7 +32,18 @@ Pick what is logical for the subject area. The smallest topic must not be trivia
 
 Go from general to specific: define the high-level topics, then their subtopics, down to the smallest unit. Then order so that **every topic's prerequisites appear earlier** in the conspect. Each topic explicitly declares its prerequisites: internal links to earlier topics plus required external knowledge (e.g., "linear algebra — matrix multiplication"). Plan the complete outline before writing any topic content; the order is a teaching decision, not an afterthought.
 
-### 4. Write each topic
+### 4. Research each topic — before writing it
+
+The outline maps the subject's *structure*; this step verifies its *content*. With the outline fixed, research every topic individually before you write it, rather than from memory. Research at **topic depth, not the whole subject at once** — targeted research keeps sources relevant to what you're about to write and surfaces the worked examples, edge cases, and misconceptions specific to that topic. For each topic:
+
+- **Consult high-quality sources.** Prefer primary and authoritative ones — standard textbooks, peer-reviewed papers, official documentation/specifications, and reputable educational material. Distrust SEO content farms, anonymous blogs, and AI-generated summaries.
+- **Fact-check every claim you will teach** — definitions, formulas, constants, numbers, dates, cause-and-effect — against a source rather than trusting recall; for contested or fast-moving topics, go to the primary source.
+- **Scale the effort to the stakes.** Corroborate load-bearing or contested claims across two independent sources; a single authoritative source is enough for settled, well-known facts. Don't burden a short conspect on a trivially familiar subject with ceremonial citation.
+- **Handle gaps honestly.** Resolve contradictions before writing. If a claim genuinely can't be settled — or sources are offline, paywalled, or simply don't exist for a niche topic — write from best knowledge but flag it in the conspect and tell the user which topics weren't source-checked. Never present an unverified claim as established fact.
+
+Record the key sources you relied on in a `resources` block (see [references/format.md](references/format.md)) so the reader can trace the material. Carry the verified facts — and the real misconceptions worth refuting (the misconceptions rule in step 5) — into the writing of that topic. Treat any examples you sketched at outline time as **provisional**: this research is where they get confirmed, corrected, or replaced.
+
+### 5. Write each topic
 
 Hold the bar: intuitively clear, never oversimplified. The core rules (full set with rationale in [references/pedagogy.md](references/pedagogy.md) — apply it throughout):
 
@@ -49,7 +60,7 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 11. **Simplify the path, not the destination.** Never dumb down the final claim; build up to it.
 12. **Cut tangents.** Everything must serve the topic's learning objective; extraneous detail is cognitive load.
 
-### 5. Render the HTML
+### 6. Render the HTML
 
 **Read [references/format.md](references/format.md) before producing any data** — it defines the exact `window.CONSPECT` schema, block types, math/tooltip conventions, the injection markers, and a validation command. Then:
 
@@ -60,7 +71,7 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 
 `template.html` ships with a built-in sample conspect, so it can be opened directly for a design preview before injection.
 
-### 6. Clean up
+### 7. Clean up
 
 The spliced `<conspect-name>.html` is fully self-contained — figures are inlined, no assets are referenced. So once it is validated and delivered, **delete every temporary file the build produced**, leaving the `.html` as the only artifact in the output location. Remove:
 
@@ -73,7 +84,8 @@ Do **not** touch the user's own input materials or anything in the skill directo
 ## Hard rules
 
 - Always read `references/format.md` before writing any conspect data.
-- Always plan the full outline (step 4) before writing any topic content.
+- Always plan the full outline (step 3) before writing any topic content.
+- Always research each topic in high-quality sources and fact-check every taught claim before writing it (step 4), scaling effort to the stakes. Prefer primary/authoritative sources. Never present an unverified claim as established fact: if it can't be verified, flag it in the conspect rather than guessing.
 - Prerequisite ordering is non-negotiable: no topic may depend on a later one. Every topic's first block is its `prereq` block.
 - Formulas are always LaTeX via MathJax — never unicode pseudo-math (`x²`, `→`, `∑` in prose-math) and never images of formulas.
 - Every `image` block renders a real figure (`svg`/`canvas`/`src`) — never ship the legacy text `placeholder` in a new conspect. Default to inline SVG; see `references/diagrams.md`.

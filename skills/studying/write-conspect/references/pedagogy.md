@@ -8,7 +8,7 @@ Distilled from research on cognitive load theory, the worked-example effect, ret
 - **Order by prerequisites, always.** Sequence topics so every concept is built only from concepts already covered (or declared external knowledge). This is how you control intrinsic cognitive load: complexity comes from how many *new* interacting elements the reader must juggle at once.
 - **Size the smallest topic as one study session's coherent idea.** Not a glossary entry, not a whole course. If a topic's outline needs sub-headings that are themselves teachable units, split it into children; if a child would be three paragraphs, merge it up.
 - **Plan the through-line.** A conspect is a single argument from first topic to last, not a pile of articles. For each topic, know which later topics will need it — if none do and it's not a leaf goal, question why it's there.
-- **Plan figures and examples at outline time**, not as decoration afterward. Decide where a picture carries the idea (dual coding) and where a worked example is the explanation.
+- **Plan figures and examples at outline time**, not as decoration afterward. Decide where a picture carries the idea (dual coding) and where a worked example is the explanation. These outline-time picks are provisional — per-topic research (SKILL step 4) confirms, corrects, or replaces the specific examples before you write.
 - **Use hierarchy visibly.** The outline (general → specific, consistent levels) is itself a learning aid: readers form a mental map from the structure before reading a word of content.
 
 ## Explaining (per topic)

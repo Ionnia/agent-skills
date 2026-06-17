@@ -237,9 +237,19 @@ f(x) стремится к L».</p>
         },
         {
           type: "image",
-          placeholder: "График функции с выколотой точкой в x = a.\nСтрелки вдоль кривой слева и справа сходятся к одной высоте L.",
-          caption: "Предел существует, хотя значения в точке нет",
-          aspect: "16/9"
+          svg: `<svg role="img" aria-label="График функции с выколотой точкой в x = a; ветви слева и справа сходятся к высоте L" viewBox="0 0 240 160" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="11">
+  <title>Предел существует, хотя значения в точке нет</title>
+  <line x1="32" y1="18" x2="32" y2="140" stroke="#888"/>
+  <line x1="32" y1="140" x2="222" y2="140" stroke="#888"/>
+  <line x1="32" y1="62" x2="124" y2="62" stroke="#bbb" stroke-dasharray="3 3"/>
+  <line x1="124" y1="62" x2="124" y2="140" stroke="#bbb" stroke-dasharray="3 3"/>
+  <path d="M42 122 Q104 64 124 62" fill="none" stroke="#4060c0" stroke-width="2"/>
+  <path d="M124 62 Q150 60 204 104" fill="none" stroke="#4060c0" stroke-width="2"/>
+  <circle cx="124" cy="62" r="3.6" fill="#fff" stroke="#4060c0" stroke-width="2"/>
+  <text x="18" y="66">L</text>
+  <text x="120" y="153">a</text>
+</svg>`,
+          caption: "Предел существует, хотя значения в точке нет"
         },
         {
           type: "selfcheck",
