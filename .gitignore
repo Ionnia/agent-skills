@@ -70,3 +70,6 @@ __pycache__/
 docs
 # Skills lockfile (local, machine-specific)
 skills-lock.json
+
+# Bundled skill archives (build artifacts — regenerate on demand)
+*.skill
