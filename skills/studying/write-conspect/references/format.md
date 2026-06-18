@@ -1,13 +1,12 @@
 # Conspect data format and rendering
 
-The conspect is rendered by the bundled `template.html`. You never edit the template's markup or scripts — you copy it and replace one data expression. Pipeline:
+The conspect is rendered by the bundled template at `templates/template.html`. You never edit the template's markup or scripts — the build script copies it and replaces one data expression. Pipeline:
 
-1. Author the data as a single JS expression evaluating to the `window.CONSPECT` object (schema below).
-2. Copy `template.html` (from this skill's directory) to `<conspect-name>.html`.
-3. Splice the expression between the injection markers (procedure below).
-4. Validate (command below) and open the file in a browser to verify.
+1. Author the data as a single JS expression evaluating to the `window.CONSPECT` object (schema below), and write it to a temp file (e.g. `data.js`).
+2. Run `node scripts/build.js <data.js> <conspect-name> [output-dir]`. The script copies the template, splices the data between the injection markers, validates the structure, and writes `<conspect-name>.html` only if validation passes.
+3. Open the file in a browser to verify.
 
-`template.html` contains a built-in sample conspect, so you can open it as-is to preview the design before injecting anything.
+`templates/template.html` contains a built-in sample conspect, so you can open it as-is to preview the design before building anything.
 
 ## `window.CONSPECT` object
 
@@ -125,9 +124,9 @@ Pure JSON is also a valid JS expression — but then **every LaTeX backslash mus
 
 > **WARNING — the #1 authoring bug.** `\f`, `\n`, `\t`, `\b`, `\r` are *valid JSON escapes*. If you write `"\frac{a}{b}"`, `"\nabla"`, `"\theta"`, `"\beta"`, `"\rho"` with single backslashes, JSON parses them **without any error** into form-feed + `rac{a}{b}`, newline + `abla`, tab + `heta`, backspace + `eta`, carriage-return + `ho`. The file renders with silently broken formulas and no diagnostic. If you author in JSON, double every single backslash and re-read every formula afterwards. Better: use the `String.raw` route and the problem cannot occur.
 
-## Injection
+## Building the file
 
-`template.html` contains, exactly once:
+`templates/template.html` contains, exactly once:
 
 ```
 window.CONSPECT =
@@ -137,79 +136,19 @@ window.CONSPECT =
 ;
 ```
 
-Replace everything strictly **between** the two marker comments with your data expression. Both markers must survive the splice (so the file can be re-injected later). Do not add a trailing semicolon to the expression — the `;` after the end marker already terminates the statement.
-
-### Splice procedure
-
-1. Write the data expression (just the expression, nothing else) to a temp file, e.g. `data.js`.
-2. Copy the template and splice:
+`scripts/build.js` replaces everything strictly **between** the two marker comments with your data expression, preserving both markers (so the file can be rebuilt later), then validates the result. Do not add a trailing semicolon to the expression — the `;` after the end marker already terminates the statement.
 
 ```bash
-cp /path/to/skill/write-conspect/template.html "<conspect-name>.html"
-
-python3 - "<conspect-name>.html" data.js <<'PYEOF'
-import sys
-out_path, data_path = sys.argv[1], sys.argv[2]
-START = "/*__CONSPECT_DATA_START__*/"
-END = "/*__CONSPECT_DATA_END__*/"
-src = open(out_path, encoding="utf-8").read()
-data = open(data_path, encoding="utf-8").read().strip()
-assert src.count(START) == 1 and src.count(END) == 1, "markers must appear exactly once"
-pre, rest = src.split(START)
-_mid, post = rest.split(END)
-open(out_path, "w", encoding="utf-8").write(pre + START + "\n" + data + "\n" + END + post)
-print("spliced", len(data), "chars into", out_path)
-PYEOF
+node scripts/build.js <data.js> <conspect-name> [output-dir]
 ```
 
-### Validation
+- `<data.js>` — a file containing **only** the data expression (the object literal, no `window.CONSPECT =`, no trailing semicolon).
+- `<conspect-name>` — the output filename stem; the script writes `<conspect-name>.html`. Independent of the data's `title`.
+- `[output-dir]` — optional; writes there if given, else the current directory.
 
-Run this against the spliced file. It extracts the expression between the markers, evaluates it, and asserts the structural invariants (non-empty topics, unique kebab-case ids, `prereq` first, known block types). It also fails on control characters inside content strings — the symptom of the JSON-backslash bug above, reported with the exact field path.
+The script validates structure before writing: non-empty `title`, valid `lang`, ≥ 1 topic, unique kebab-case ids, `prereq` as each topic's first block, known block types, `formula` blocks with non-empty `tex` + `explain`, and a control-character scan that catches the JSON-backslash bug above (reported with the exact field path). **On any validation failure it prints the error and writes no file (non-zero exit)** — so a broken build never produces an HTML file. An `image` block with no `svg`/`canvas`/`src` prints a non-fatal `WARN` but still builds. On success it prints `OK: "<title>" — N topics → <path>`.
 
-```bash
-node -e '
-const fs = require("fs");
-const src = fs.readFileSync(process.argv[1], "utf8");
-const a = src.split("/*__CONSPECT_DATA_START__*/");
-const b = a.length === 2 ? a[1].split("/*__CONSPECT_DATA_END__*/") : [];
-if (a.length !== 2 || b.length !== 2) throw new Error("injection markers missing or duplicated");
-const data = new Function("return (" + b[0] + ")")();
-if (typeof data.title !== "string" || !data.title) throw new Error("title must be a non-empty string");
-if (data.lang !== undefined && !["ru", "en"].includes(data.lang)) throw new Error("lang must be ru or en");
-if (!Array.isArray(data.topics) || data.topics.length === 0) throw new Error("topics must be a non-empty array");
-const known = ["prereq", "text", "attention", "example", "image", "formula", "selfcheck", "resources"];
-const ids = [];
-(function walk(topics) {
-  for (const t of topics) {
-    if (!/^[a-z0-9-]+$/.test(t.id || "")) throw new Error("bad topic id: " + JSON.stringify(t.id));
-    ids.push(t.id);
-    if (typeof t.title !== "string" || !t.title) throw new Error(t.id + ": title missing");
-    if (!Array.isArray(t.blocks) || t.blocks.length === 0 || t.blocks[0].type !== "prereq")
-      throw new Error(t.id + ": first block must be type prereq");
-    for (const blk of t.blocks) {
-      if (!known.includes(blk.type)) throw new Error(t.id + ": unknown block type " + JSON.stringify(blk.type));
-      if (blk.type === "image" && !blk.svg && !blk.canvas && !blk.src)
-        console.warn("WARN " + t.id + ": image block has no svg/canvas/src (placeholder is deprecated)");
-      if (blk.type === "formula" && (typeof blk.tex !== "string" || !blk.tex.trim() || typeof blk.explain !== "string" || !blk.explain.trim()))
-        throw new Error(t.id + ": formula block needs non-empty string tex and explain");
-    }
-    if (t.children) walk(t.children);
-  }
-})(data.topics);
-if (new Set(ids).size !== ids.length) throw new Error("duplicate topic ids");
-(function scan(v, path) {
-  if (typeof v === "string") {
-    if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(v))
-      throw new Error("control character in " + path + " - a LaTeX backslash was eaten by JSON escaping (e.g. \"\\frac\" parsed as formfeed+rac). Fix the formulas or switch to String.raw.");
-  } else if (v && typeof v === "object") {
-    for (const k of Object.keys(v)) scan(v[k], path + "." + k);
-  }
-})(data, "data");
-console.log("OK:", JSON.stringify(data.title), "-", ids.length, "topics, ids unique, structure valid");
-' "<conspect-name>.html"
-```
-
-If validation fails, fix `data.js` and re-run the splice (the markers survive, so splicing is repeatable).
+If validation fails, fix `data.js` and re-run — the build is idempotent and repeatable.
 
 ## Template behaviors worth knowing
 
