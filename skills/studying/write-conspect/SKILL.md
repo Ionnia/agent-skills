@@ -9,7 +9,7 @@ metadata:
 
 # Write Conspect
 
-Approach this as the **best teacher in the world**, not a summarizer. A conspect is a self-contained set of study notes that explains complex things intuitively — never simplistically — and adds complexity bit by bit, assuming sensible prerequisites. The deliverable is a single `<conspect-name>.html` file built from the bundled `template.html`.
+Approach this as the **best teacher in the world**, not a summarizer. A conspect is a self-contained set of study notes that explains complex things intuitively — never simplistically — and adds complexity bit by bit, assuming sensible prerequisites. The deliverable is a single `<conspect-name>.html` file built from the bundled `templates/template.html`.
 
 Write all conspect content in the **language of the user's request and materials** (Russian request → Russian conspect). This file's workflow applies regardless of that language.
 
@@ -62,14 +62,14 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 
 ### 6. Render the HTML
 
-**Read [references/format.md](references/format.md) before producing any data** — it defines the exact `window.CONSPECT` schema, block types, math/tooltip conventions, the injection markers, and a validation command. Then:
+**Read [references/format.md](references/format.md) before producing any data** — it defines the exact `window.CONSPECT` schema, block types, math/tooltip conventions, the injection markers, and the build command. Then:
 
-1. Build the data object for the whole conspect. For each `image` block, generate a real figure per [references/diagrams.md](references/diagrams.md) — SVG (default), canvas (dense data), or an inlined WebP from `scripts/image-to-inline.py` (real imagery only).
-2. Copy the bundled `template.html` to `<conspect-name>.html` and splice the data between the injection markers as described in format.md.
-3. Validate with the command from format.md (it warns on any `image` block left without a figure).
-4. Deliver the file where the user expects output — ask or infer from context.
+1. Build the data object for the whole conspect and write it to a temp file (e.g. `data.js`) as a single JS expression. For each `image` block, generate a real figure per [references/diagrams.md](references/diagrams.md) — SVG (default), canvas (dense data), or an inlined WebP from `scripts/image-to-inline.py` (real imagery only).
+2. Run `node scripts/build.js data.js <conspect-name> [output-dir]`. It copies the template, splices the data, validates the structure, and writes `<conspect-name>.html` only if validation passes (it warns on any `image` block left without a figure).
+3. If the build reports a validation error, fix `data.js` and re-run.
+4. Deliver the file where the user expects output — pass the directory as `[output-dir]` or run the command there.
 
-`template.html` ships with a built-in sample conspect, so it can be opened directly for a design preview before injection.
+`templates/template.html` ships with a built-in sample conspect, so it can be opened directly for a design preview before building.
 
 ### 7. Clean up
 
@@ -79,7 +79,7 @@ The spliced `<conspect-name>.html` is fully self-contained — figures are inlin
 - any source/intermediate images fed to `scripts/image-to-inline.py` (the WebP is already inlined into the HTML);
 - any other scratch files, caches, or partial copies created in the output directory during the build.
 
-Do **not** touch the user's own input materials or anything in the skill directory itself (`template.html`, `scripts/`, `references/`). Verify after deletion that the output location contains the `.html` and nothing else the build created.
+Do **not** touch the user's own input materials or anything in the skill directory itself (`templates/template.html`, `scripts/`, `references/`). Verify after deletion that the output location contains the `.html` and nothing else the build created.
 
 ## Hard rules
 
@@ -92,7 +92,7 @@ Do **not** touch the user's own input materials or anything in the skill directo
 - Every `image` block renders a real figure (`svg`/`canvas`/`src`) — never ship the legacy text `placeholder` in a new conspect. Default to inline SVG; see `references/diagrams.md`.
 - `selfcheck` and `attention` blocks only where they earn their place; an attention block with no real pitfall is noise.
 - Conspect language matches the user's materials/request; template UI language is set via the `lang` field.
-- The deliverable is `<conspect-name>.html` built from a copy of the bundled `template.html` — never hand-write the HTML shell, never modify `template.html` itself.
+- The deliverable is `<conspect-name>.html` built by `scripts/build.js` from the bundled `templates/template.html` — never hand-write the HTML shell, never modify `templates/template.html` itself.
 - After the `.html` is validated and delivered, delete all temporary build files (data expression, intermediate/source images, scratch files). The `<conspect-name>.html` must be the only artifact left in the output location; never remove the user's input materials or the skill's own files.
 
 ## References
