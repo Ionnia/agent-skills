@@ -3,9 +3,10 @@
   "notGrouped": "bottom",
   "groupings": [
     {
-      "title": "Vue",
-      "description": "Vue 3 code review skills for components, composables, and frontend code.",
+      "title": "Code Review",
+      "description": "Code review skills: a language-agnostic general reviewer plus Vue 3 specialists for components, composables, and frontend code.",
       "skills": [
+        "general-review",
         "vue-review",
         "vue-rureview"
       ]
