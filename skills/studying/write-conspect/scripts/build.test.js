@@ -83,3 +83,62 @@ test("image block without a figure warns but still builds", () => {
   assert.match(r.stderr, /WARN a: image block has no/);
   assert.ok(fs.existsSync(path.join(dir, "warned.html")));
 });
+
+const TABLE_OK = `{
+  title: "T", lang: "ru",
+  topics: [ { id: "a", title: "A", blocks: [
+    { type: "prereq", items: [] },
+    { type: "table",
+      headers: ["Name", "Formula", "Range"],
+      rows: [ ["ReLU", "max(0,x)", "[0, inf)"], ["Tanh", "tanh x", "(-1, 1)"] ],
+      align: ["left", "left", "right"],
+      rowHeader: true,
+      caption: "Comparison" }
+  ] } ]
+}`;
+
+test("valid table block builds an html file", () => {
+  const dir = tmpDir();
+  const dataPath = path.join(dir, "data.js");
+  fs.writeFileSync(dataPath, TABLE_OK);
+  const r = spawnSync("node", [BUILD, dataPath, "tbl", dir], { encoding: "utf8" });
+  assert.strictEqual(r.status, 0, r.stderr);
+  assert.ok(fs.existsSync(path.join(dir, "tbl.html")));
+});
+
+test("ragged table row fails", () => {
+  const dir = tmpDir();
+  const dataPath = path.join(dir, "data.js");
+  fs.writeFileSync(dataPath, TABLE_OK.replace('["Tanh", "tanh x", "(-1, 1)"]', '["Tanh", "tanh x"]'));
+  const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
+  assert.notStrictEqual(r.status, 0);
+  assert.match(r.stderr, /expected 3/);
+  assert.ok(!fs.existsSync(path.join(dir, "broken.html")));
+});
+
+test("empty table headers fail", () => {
+  const dir = tmpDir();
+  const dataPath = path.join(dir, "data.js");
+  fs.writeFileSync(dataPath, TABLE_OK.replace('["Name", "Formula", "Range"]', '[]'));
+  const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
+  assert.notStrictEqual(r.status, 0);
+  assert.match(r.stderr, /non-empty headers array/);
+});
+
+test("bad table align value fails", () => {
+  const dir = tmpDir();
+  const dataPath = path.join(dir, "data.js");
+  fs.writeFileSync(dataPath, TABLE_OK.replace('"left", "left", "right"', '"left", "left", "middle"'));
+  const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
+  assert.notStrictEqual(r.status, 0);
+  assert.match(r.stderr, /align entries must be left, center or right/);
+});
+
+test("table align length mismatch fails", () => {
+  const dir = tmpDir();
+  const dataPath = path.join(dir, "data.js");
+  fs.writeFileSync(dataPath, TABLE_OK.replace('align: ["left", "left", "right"]', 'align: ["left", "left"]'));
+  const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
+  assert.notStrictEqual(r.status, 0);
+  assert.match(r.stderr, /align must be an array of length 3/);
+});

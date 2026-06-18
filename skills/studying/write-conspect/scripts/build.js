@@ -62,7 +62,7 @@ if (typeof obj.title !== "string" || !obj.title) fail("title must be a non-empty
 if (obj.lang !== undefined && !["ru", "en"].includes(obj.lang)) fail("lang must be ru or en");
 if (!Array.isArray(obj.topics) || obj.topics.length === 0) fail("topics must be a non-empty array");
 
-const known = ["prereq", "text", "attention", "example", "image", "formula", "selfcheck", "resources"];
+const known = ["prereq", "text", "attention", "example", "image", "formula", "selfcheck", "resources", "table"];
 const ids = [];
 const warnings = [];
 try {
@@ -79,6 +79,29 @@ try {
           warnings.push("WARN " + t.id + ": image block has no svg/canvas/src (placeholder is deprecated)");
         if (blk.type === "formula" && (typeof blk.tex !== "string" || !blk.tex.trim() || typeof blk.explain !== "string" || !blk.explain.trim()))
           throw new Error(t.id + ": formula block needs non-empty string tex and explain");
+        if (blk.type === "table") {
+          if (!Array.isArray(blk.headers) || blk.headers.length === 0)
+            throw new Error(t.id + ": table block needs a non-empty headers array");
+          for (const h of blk.headers)
+            if (typeof h !== "string") throw new Error(t.id + ": table headers must all be strings");
+          if (!Array.isArray(blk.rows) || blk.rows.length === 0)
+            throw new Error(t.id + ": table block needs a non-empty rows array");
+          for (let i = 0; i < blk.rows.length; i++) {
+            const row = blk.rows[i];
+            if (!Array.isArray(row) || row.length !== blk.headers.length)
+              throw new Error(t.id + ": table row " + i + " has " + (Array.isArray(row) ? row.length : "non-array") + " cells, expected " + blk.headers.length);
+            for (const c of row)
+              if (typeof c !== "string") throw new Error(t.id + ": table row " + i + " cells must all be strings");
+          }
+          if (blk.align !== undefined) {
+            if (!Array.isArray(blk.align) || blk.align.length !== blk.headers.length)
+              throw new Error(t.id + ": table align must be an array of length " + blk.headers.length);
+            for (const a of blk.align)
+              if (!["left", "center", "right"].includes(a)) throw new Error(t.id + ": table align entries must be left, center or right");
+          }
+          if (blk.rowHeader !== undefined && typeof blk.rowHeader !== "boolean")
+            throw new Error(t.id + ": table rowHeader must be a boolean");
+        }
       }
       if (t.children) walk(t.children);
     }
