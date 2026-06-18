@@ -4,7 +4,7 @@ description: Use when writing study notes (a conspect / конспект) on a t
 license: MIT
 metadata:
   author: Ionnia
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Write Conspect
@@ -17,7 +17,7 @@ Write all conspect content in the **language of the user's request and materials
 
 ### 1. Understand the subject
 
-Ingest everything the user provided (notes, textbook excerpts, slides, question lists). Get enough of a grip on the subject to structure it correctly: if your knowledge is thin, the field moves fast, or the materials reference things you can't ground, do **orientation-level research now** — a quick pass over authoritative sources (the quality bar is detailed in step 4) to map the subject's main parts and their dependencies. Never outline a subject you don't understand end to end. This pass is for *structure* only; the deep, topic-by-topic fact-checking happens *after* the outline, in step 4.
+Ingest everything the user provided (notes, textbook excerpts, slides, question lists). Get enough of a grip on the subject to structure it correctly: if your knowledge is thin, the field moves fast, or the materials reference things you can't ground, do **orientation-level research now** — a quick pass over authoritative sources (the quality bar is detailed in step 4) to map the subject's main parts and their dependencies. Never outline a subject you don't understand end to end. This pass is for _structure_ only; the deep, topic-by-topic fact-checking happens _after_ the outline, in step 4.
 
 ### 2. Decide the depth of elaboration
 
@@ -34,9 +34,9 @@ Go from general to specific: define the high-level topics, then their subtopics,
 
 ### 4. Research each topic — before writing it
 
-The outline maps the subject's *structure*; this step verifies its *content*. With the outline fixed, research every topic individually before you write it, rather than from memory. Research at **topic depth, not the whole subject at once** — targeted research keeps sources relevant to what you're about to write and surfaces the worked examples, edge cases, and misconceptions specific to that topic. For each topic:
+The outline maps the subject's _structure_; this step verifies its _content_. With the outline fixed, research every topic individually before you write it, rather than from memory. Research at **topic depth, not the whole subject at once** — targeted research keeps sources relevant to what you're about to write and surfaces the worked examples, edge cases, and misconceptions specific to that topic. For each topic:
 
-- **Consult high-quality sources.** Prefer primary and authoritative ones — standard textbooks, peer-reviewed papers, official documentation/specifications, and reputable educational material. **Actively search educational websites**, especially **university course pages and their published lecture notes / study notes** (e.g. MIT OpenCourseWare, Stanford, CMU, HSE, ITMO course sites, `.edu`/`.ac.*` department pages, Khan Academy, Brilliant, and similar) — these are written to *teach* the topic, so they surface the same intuitions, worked examples, and common misconceptions a conspect needs. Treat such material as authoritative for explanation and pedagogy, but still cross-check hard facts (formulas, constants, dates) against a primary source. Distrust SEO content farms, anonymous blogs, and AI-generated summaries.
+- **Consult high-quality sources.** Prefer primary and authoritative ones — standard textbooks, peer-reviewed papers, official documentation/specifications, and reputable educational material. **Actively search educational websites**, especially **university course pages and their published lecture notes / study notes** (e.g. MIT OpenCourseWare, Stanford, CMU, HSE, ITMO course sites, `.edu`/`.ac.*` department pages, Khan Academy, Brilliant, and similar) — these are written to _teach_ the topic, so they surface the same intuitions, worked examples, and common misconceptions a conspect needs. Treat such material as authoritative for explanation and pedagogy, but still cross-check hard facts (formulas, constants, dates) against a primary source. Distrust SEO content farms, anonymous blogs, and AI-generated summaries.
 - **Fact-check every claim you will teach** — definitions, formulas, constants, numbers, dates, cause-and-effect — against a source rather than trusting recall; for contested or fast-moving topics, go to the primary source.
 - **Scale the effort to the stakes.** Corroborate load-bearing or contested claims across two independent sources; a single authoritative source is enough for settled, well-known facts. Don't burden a short conspect on a trivially familiar subject with ceremonial citation.
 - **Handle gaps honestly.** Resolve contradictions before writing. If a claim genuinely can't be settled — or sources are offline, paywalled, or simply don't exist for a niche topic — write from best knowledge but flag it in the conspect and tell the user which topics weren't source-checked. Never present an unverified claim as established fact.
