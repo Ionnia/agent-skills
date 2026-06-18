@@ -213,10 +213,21 @@ html[data-theme="dark"] .backlight { filter: saturate(1.15); }
 .site-title {
   font-family: var(--font-title);
   font-weight: 600;
-  font-size: 22px;
+  /* shrink the font as the box gets narrower so long titles still fit */
+  font-size: clamp(15px, 1.4vw, 22px);
   letter-spacing: 0.01em;
   margin: 0;
-  white-space: nowrap;
+  /* fill the left gutter so the breadcrumb lines up with the content's left
+     text edge: (100vw - column)/2 + page-pad(24) - header-pad(32) - gap(14)
+     - crumb-pad(12) = (100vw - column)/2 - 34. Floor so it never collapses. */
+  flex: none;
+  width: max(256px, calc((100vw - var(--maxw)) / 2 - 34px));
+  line-height: 1.2;
+  /* wrap long titles instead of forcing a single line */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
 }
 .header-actions { margin-left: auto; display: flex; align-items: center; gap: 4px; }
 .icon-btn {
@@ -894,6 +905,7 @@ html[data-dir="glass"] .icon-btn {
 .fatal { font-family: var(--font-ui); }
 
 @media (max-width: 560px) {
+  .site-title { width: auto; max-width: 100%; font-size: 18px; }
   .topic-title { font-size: 30px; }
   .bottomnav { grid-template-columns: 1fr; }
   .bn-next { grid-column: 1; }
