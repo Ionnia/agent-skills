@@ -97,13 +97,27 @@ const TABLE_OK = `{
   ] } ]
 }`;
 
-test("valid table block builds an html file", () => {
+test("valid table block builds an html file with the data spliced in", () => {
   const dir = tmpDir();
   const dataPath = path.join(dir, "data.js");
   fs.writeFileSync(dataPath, TABLE_OK);
   const r = spawnSync("node", [BUILD, dataPath, "tbl", dir], { encoding: "utf8" });
   assert.strictEqual(r.status, 0, r.stderr);
-  assert.ok(fs.existsSync(path.join(dir, "tbl.html")));
+  const htmlPath = path.join(dir, "tbl.html");
+  assert.ok(fs.existsSync(htmlPath));
+  const html = fs.readFileSync(htmlPath, "utf8");
+  assert.ok(html.includes("ReLU"), "table cell data should be spliced into the output");
+  assert.ok(html.includes("Comparison"), "table caption should be spliced into the output");
+});
+
+test("non-string table caption fails", () => {
+  const dir = tmpDir();
+  const dataPath = path.join(dir, "data.js");
+  fs.writeFileSync(dataPath, TABLE_OK.replace('caption: "Comparison"', 'caption: { x: 1 }'));
+  const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
+  assert.notStrictEqual(r.status, 0);
+  assert.match(r.stderr, /caption must be a string/);
+  assert.ok(!fs.existsSync(path.join(dir, "broken.html")));
 });
 
 test("ragged table row fails", () => {

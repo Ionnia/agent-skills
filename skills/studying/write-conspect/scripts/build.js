@@ -101,6 +101,8 @@ try {
           }
           if (blk.rowHeader !== undefined && typeof blk.rowHeader !== "boolean")
             throw new Error(t.id + ": table rowHeader must be a boolean");
+          if (blk.caption !== undefined && typeof blk.caption !== "string")
+            throw new Error(t.id + ": table caption must be a string");
         }
       }
       if (t.children) walk(t.children);

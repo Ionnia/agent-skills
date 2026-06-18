@@ -60,6 +60,8 @@ html {
   --maxw: 1024px;
   --font-title: 'Comfortaa', 'Trebuchet MS', sans-serif;
   -webkit-text-size-adjust: 100%;
+  /* stronger rule than --line: darker in light theme, whiter in dark theme */
+  --line-strong: color-mix(in oklab, var(--ink) 25%, var(--line));
 }
 
 /* ---------- direction: fonts & shape ---------- */
@@ -761,7 +763,7 @@ html[data-dir="glass"][data-theme="dark"] .callout {
 
 /* ---------- table ---------- */
 .tbl-fig { margin: 1.8em 0; }
-.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: calc(var(--radius) + 4px); }
+.tbl-wrap { overflow-x: auto; border-top: 1.5px solid var(--line-strong); border-bottom: 1.5px solid var(--line-strong); }
 .tbl-fig table.tbl, .prose table {
   border-collapse: collapse; width: 100%;
   font-family: var(--font-body); font-size: 0.95em; line-height: 1.5;
@@ -772,7 +774,7 @@ html[data-dir="glass"][data-theme="dark"] .callout {
 .tbl-fig thead th, .prose thead th {
   font-family: var(--font-head); font-weight: var(--head-weight); color: var(--ink);
   white-space: nowrap;
-  border-bottom: 2px solid color-mix(in oklab, var(--blk-prereq) 55%, var(--line));
+  border-bottom: 1.5px solid var(--line-strong);
 }
 .tbl-fig tbody th[scope="row"], .prose tbody th[scope="row"] {
   font-weight: 600; color: var(--ink); white-space: nowrap;
@@ -783,7 +785,7 @@ html[data-dir="glass"][data-theme="dark"] .callout {
 }
 .tbl-fig .a-right { text-align: right; font-variant-numeric: tabular-nums; }
 .tbl-fig .a-center { text-align: center; }
-.prose table { display: block; overflow-x: auto; margin: 1.4em 0; }
+.prose table { display: block; overflow-x: auto; margin: 1.4em 0; border-top: 1.5px solid var(--line-strong); border-bottom: 1.5px solid var(--line-strong); }
 .tbl-cap {
   font-family: var(--font-ui); font-size: 13.5px; color: var(--ink-soft);
   text-align: center; margin-top: 10px; text-wrap: pretty;
@@ -1880,9 +1882,9 @@ window.CONSPECT =
   }
 
   function renderTable(b) {
-    var headers = b.headers || [];
-    var rows = b.rows || [];
-    var align = b.align || [];
+    var headers = Array.isArray(b.headers) ? b.headers : [];
+    var rows = Array.isArray(b.rows) ? b.rows : [];
+    var align = Array.isArray(b.align) ? b.align : [];
     function alignClass(i) {
       return align[i] === "right" ? "a-right" : align[i] === "center" ? "a-center" : null;
     }
@@ -1890,7 +1892,7 @@ window.CONSPECT =
       return el("th", { scope: "col", class: alignClass(i), html: h });
     })));
     var tbody = el("tbody", null, rows.map(function (row) {
-      return el("tr", null, row.map(function (cell, i) {
+      return el("tr", null, (Array.isArray(row) ? row : []).map(function (cell, i) {
         if (i === 0 && b.rowHeader)
           return el("th", { scope: "row", class: alignClass(i), html: cell });
         return el("td", { class: alignClass(i), html: cell });

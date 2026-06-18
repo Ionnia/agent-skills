@@ -4,7 +4,7 @@ description: Use when writing study notes (a conspect / конспект) on a t
 license: MIT
 metadata:
   author: Ionnia
-  version: "0.3.0"
+  version: "0.3.1"
 ---
 
 # Write Conspect
