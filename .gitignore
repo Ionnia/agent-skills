@@ -73,3 +73,5 @@ skills-lock.json
 
 # Bundled skill archives (build artifacts — regenerate on demand)
 *.skill
+
+.superpowers/

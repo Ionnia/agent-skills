@@ -70,6 +70,19 @@ A block is a discriminated union on `type`. Fields marked *html* accept the HTML
 
 Choose the mechanism by the decision rule in [diagrams.md](diagrams.md): **SVG** for schematic figures (default), **canvas** only for genuinely dense procedural data (thick scatter, heatmaps, fractals), **src** (inlined WebP via `scripts/image-to-inline.py`) only for real imagery that cannot be drawn as vector. The legacy `placeholder` field still renders for old conspects but must not be used in new ones.
 
+**`formula` — display formula with an on-demand intuitive explanation.** Renders the centered formula with a small `?` icon beside it; clicking the icon opens a dialog showing the formula on top, a divider, then the explanation.
+
+```js
+{ type: "formula",
+  tex:     /* string: plain LaTeX body, NO delimiters — the template wraps it in $$…$$ */,
+  explain: /* html: the intuitive explanation (analogy, prose, math allowed) */,
+  caption: /* optional plain: shown under the formula in-flow */ }
+```
+
+- `tex` is the **LaTeX body only** — write `\frac{1}{m}\sum …`, not `$$ \frac{1}{m}\sum … $$`. The template adds the `$$ … $$`.
+- `explain` is an html-with-math field — same subset as a `text` block: paragraphs, lists, `<blockquote>`, inline `\( … \)` and display `$$ … $$`, tooltips. This is where the analogy-driven, plain-words explanation lives. Required and non-empty (an empty `explain` defeats the block's purpose — use a plain `$$…$$` in a `text` block instead).
+- Use it **only for a load-bearing formula a student would genuinely stumble on**, not for every formula. Ordinary formulas stay as `$$…$$` inside `text` blocks. Display formulas only; one block holds exactly one formula.
+
 **`selfcheck` — self-check questions with collapsible answers.**
 
 ```js
@@ -164,7 +177,7 @@ const data = new Function("return (" + b[0] + ")")();
 if (typeof data.title !== "string" || !data.title) throw new Error("title must be a non-empty string");
 if (data.lang !== undefined && !["ru", "en"].includes(data.lang)) throw new Error("lang must be ru or en");
 if (!Array.isArray(data.topics) || data.topics.length === 0) throw new Error("topics must be a non-empty array");
-const known = ["prereq", "text", "attention", "example", "image", "selfcheck", "resources"];
+const known = ["prereq", "text", "attention", "example", "image", "formula", "selfcheck", "resources"];
 const ids = [];
 (function walk(topics) {
   for (const t of topics) {
@@ -177,6 +190,8 @@ const ids = [];
       if (!known.includes(blk.type)) throw new Error(t.id + ": unknown block type " + JSON.stringify(blk.type));
       if (blk.type === "image" && !blk.svg && !blk.canvas && !blk.src)
         console.warn("WARN " + t.id + ": image block has no svg/canvas/src (placeholder is deprecated)");
+      if (blk.type === "formula" && (typeof blk.tex !== "string" || !blk.tex.trim() || typeof blk.explain !== "string" || !blk.explain.trim()))
+        throw new Error(t.id + ": formula block needs non-empty string tex and explain");
     }
     if (t.children) walk(t.children);
   }

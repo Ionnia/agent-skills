@@ -88,6 +88,7 @@ Do **not** touch the user's own input materials or anything in the skill directo
 - Always research each topic in high-quality sources and fact-check every taught claim before writing it (step 4), scaling effort to the stakes. Prefer primary/authoritative sources. Never present an unverified claim as established fact: if it can't be verified, flag it in the conspect rather than guessing.
 - Prerequisite ordering is non-negotiable: no topic may depend on a later one. Every topic's first block is its `prereq` block.
 - Formulas are always LaTeX via MathJax — never unicode pseudo-math (`x²`, `→`, `∑` in prose-math) and never images of formulas.
+- For a load-bearing formula a student would genuinely stumble on, use a `formula` block (display formula + clickable `?` opening an intuitive explanation), not a bare `$$…$$`. Don't apply it to routine formulas. See [references/format.md](references/format.md).
 - Every `image` block renders a real figure (`svg`/`canvas`/`src`) — never ship the legacy text `placeholder` in a new conspect. Default to inline SVG; see `references/diagrams.md`.
 - `selfcheck` and `attention` blocks only where they earn their place; an attention block with no real pitfall is noise.
 - Conspect language matches the user's materials/request; template UI language is set via the `lang` field.

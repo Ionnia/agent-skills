@@ -912,6 +912,92 @@ html[data-dir="glass"] .icon-btn {
   .header-inner { padding: 11px 16px 9px; }
   .page { padding: 32px 18px 64px; }
 }
+
+/* ---------- formula block + explanation dialog ---------- */
+.formula-block { margin: 1.1em 0; }
+.formula-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.formula-math { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+.formula-math mjx-container[display="true"] { margin: 0 !important; }
+.formula-q {
+  flex: 0 0 auto;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.4px solid var(--ink-soft);
+  color: var(--ink-soft);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 12px; font-weight: 700; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.formula-q:hover { color: var(--ink); border-color: var(--ink); }
+.formula-q:focus-visible { outline: 2px solid var(--blk-prereq); outline-offset: 2px; }
+.formula-cap {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 10px;
+  text-wrap: pretty;
+}
+
+.fdlg-overlay {
+  position: fixed; inset: 0;
+  background: transparent;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  z-index: 200;
+}
+.fdlg-overlay.is-open { display: flex; }
+body.fdlg-lock { overflow: hidden; }
+.fdlg-panel {
+  position: relative;
+  width: min(880px, 100%);
+  max-height: 88vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  background: var(--pop-bg);
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  border-radius: 20px;
+  box-shadow: 0 14px 36px var(--shadow);
+  animation: popIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+html[data-theme="dark"] .fdlg-panel { border-color: color-mix(in oklab, var(--ink) 5%, transparent); }
+@media (prefers-reduced-motion: reduce) { .fdlg-panel { animation: none; } }
+.fdlg-head { padding: 28px 32px 18px; flex: 0 0 auto; }
+.fdlg-label {
+  font-family: var(--font-ui);
+  font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 6px;
+}
+.fdlg-formula { overflow-x: auto; overflow-y: hidden; }
+.fdlg-formula mjx-container[display="true"] { margin: 0 !important; }
+.fdlg-divider { height: 1px; background: var(--line); margin: 0 32px; flex: 0 0 auto; }
+.fdlg-body { padding: 22px 32px 30px; overflow-y: auto; }
+.fdlg-close {
+  position: absolute; top: 16px; right: 18px;
+  width: 30px; height: 30px;
+  border: none; border-radius: 9px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: 22px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.fdlg-close:hover { background: var(--hover); color: var(--ink); }
+.fdlg-close:focus-visible { outline: 2px solid var(--blk-prereq); outline-offset: 2px; }
+@media (max-width: 560px) {
+  .fdlg-head { padding: 24px 18px 16px; }
+  .fdlg-divider { margin: 0 18px; }
+  .fdlg-body { padding: 18px 18px 24px; }
+}
 </style>
 </head>
 <body>
@@ -1045,6 +1131,8 @@ window.CONSPECT =
       prereqNone: "Пререквизитов нет",
       attention: "Обратите внимание",
       example: "Пример",
+      formula: "Формула",
+      explainFormula: "Объяснить формулу простыми словами",
       selfcheck: "Вопросы для самопроверки",
       showAnswer: "показать ответ",
       hideAnswer: "скрыть ответ",
@@ -1076,6 +1164,8 @@ window.CONSPECT =
       prereqNone: "No prerequisites",
       attention: "Watch out",
       example: "Example",
+      formula: "Formula",
+      explainFormula: "Explain this formula in plain words",
       selfcheck: "Self-check questions",
       showAnswer: "show answer",
       hideAnswer: "hide answer",
@@ -1687,6 +1777,68 @@ window.CONSPECT =
     });
     return callout("c-res", "library_books", S.sources, ul);
   }
+  /* ---------- formula explanation dialog (built once, reused) ---------- */
+  var fdlg = null;
+  function ensureFormulaDialog() {
+    if (fdlg) return fdlg;
+    var closeBtn = el("button", { class: "fdlg-close", type: "button", "aria-label": S.close, html: "&times;" });
+    var formulaWrap = el("div", { class: "fdlg-formula" });
+    var body = el("div", { class: "fdlg-body prose" });
+    var panel = el("div", {
+      class: "fdlg-panel", role: "dialog", "aria-modal": "true", "aria-label": S.explainFormula
+    }, [
+      closeBtn,
+      el("div", { class: "fdlg-head" }, [
+        el("p", { class: "fdlg-label", text: S.formula }),
+        formulaWrap
+      ]),
+      el("div", { class: "fdlg-divider" }),
+      body
+    ]);
+    var overlay = el("div", { class: "fdlg-overlay" }, panel);
+    document.body.appendChild(overlay);
+    fdlg = { overlay: overlay, panel: panel, formulaWrap: formulaWrap, body: body, closeBtn: closeBtn, unregister: null, prevFocus: null };
+    closeBtn.addEventListener("click", closeFormulaDialog);
+    return fdlg;
+  }
+  function closeFormulaDialog() {
+    if (!fdlg) return;
+    fdlg.overlay.classList.remove("is-open");
+    document.body.classList.remove("fdlg-lock");
+    if (fdlg.unregister) { fdlg.unregister(); fdlg.unregister = null; }
+    if (fdlg.prevFocus && fdlg.prevFocus.focus) {
+      try { fdlg.prevFocus.focus({ preventScroll: true }); } catch (e) { fdlg.prevFocus.focus(); }
+      fdlg.prevFocus = null;
+    }
+  }
+  function openFormulaDialog(tex, explainHtml) {
+    closeAllPopovers();
+    var d = ensureFormulaDialog();
+    d.prevFocus = document.activeElement;
+    d.formulaWrap.innerHTML = "$$ " + (tex || "") + " $$";
+    d.body.innerHTML = explainHtml || "";
+    d.overlay.classList.add("is-open");
+    document.body.classList.add("fdlg-lock");
+    if (d.unregister) d.unregister();
+    d.unregister = registerPopover(d.panel, closeFormulaDialog);
+    try { d.closeBtn.focus({ preventScroll: true }); } catch (e) { d.closeBtn.focus(); }
+    typesetEl(d.formulaWrap);
+    typesetEl(d.body);
+  }
+
+  function renderFormula(b) {
+    var math = el("div", { class: "formula-math", html: "$$ " + (b.tex || "") + " $$" });
+    var qbtn = el("button", {
+      class: "formula-q", type: "button", "aria-label": S.explainFormula, text: "?"
+    });
+    qbtn.addEventListener("click", function () { openFormulaDialog(b.tex, b.explain); });
+    var block = el("div", { class: "formula-block" }, [
+      el("div", { class: "formula-row" }, [math, qbtn])
+    ]);
+    if (b.caption) block.appendChild(el("div", { class: "formula-cap", text: b.caption }));
+    return block;
+  }
+
   function renderBlock(b) {
     if (!b || typeof b !== "object") return null;
     switch (b.type) {
@@ -1700,6 +1852,8 @@ window.CONSPECT =
         return callout("c-example", "calculate", b.title ? S.example + " — " + b.title : S.example, b.html || "");
       case "image":
         return renderFigure(b);
+      case "formula":
+        return renderFormula(b);
       case "selfcheck":
         return renderSelfCheck(b);
       case "resources":
