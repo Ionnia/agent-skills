@@ -4,7 +4,7 @@ description: Use when writing study notes (a conspect / конспект) on a t
 license: MIT
 metadata:
   author: Ionnia
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Write Conspect
@@ -55,7 +55,7 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 6. **Several concrete examples with different surface features**, so the idea transfers instead of binding to one case.
 7. **Refute misconceptions head-on** where they really exist: state the wrong belief, why it's tempting, why it's wrong, then the correct version — that's what `attention` blocks are for.
 8. **Self-check means retrieval, not recognition.** Questions force recall or application, answers included, an occasional question reaching back to earlier topics. Add them where a concept boundary warrants it — not mechanically everywhere.
-9. **Dual coding.** Pair prose with a figure where a picture genuinely carries the idea. **Always generate a real figure**, never a text description — inline SVG by default, canvas for dense data, or an inlined WebP raster as a last resort. See [references/diagrams.md](references/diagrams.md) for the decision rule and authoring rules.
+9. **Dual coding.** Pair prose with a figure where a picture genuinely carries the idea. **Always generate a real figure**, never a text description — inline SVG by default, canvas for dense data, or an inlined WebP raster as a last resort. See [references/diagrams.md](references/diagrams.md) for the decision rule and authoring rules. A well-built comparison **`table`** block is also dual coding — use it when several items differ along the same few dimensions, instead of burying the contrasts in prose.
 10. **Define every term at first use** — tooltips for in-place definitions; keep terminology consistent thereafter.
 11. **Simplify the path, not the destination.** Never dumb down the final claim; build up to it.
 12. **Cut tangents.** Everything must serve the topic's learning objective; extraneous detail is cognitive load.

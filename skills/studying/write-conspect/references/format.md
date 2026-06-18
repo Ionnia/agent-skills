@@ -90,6 +90,22 @@ Choose the mechanism by the decision rule in [diagrams.md](diagrams.md): **SVG**
 
 The question number (`1.`, `2.`, …) is prepended automatically via a CSS counter as **inline** content. So `q` must **start with inline content — do not wrap it in `<p>`** (or any block element): a leading block pushes the number onto its own line. Inline markup (`<em>`, `<code>`, tooltips) and math `\( … \)` are fine. The answer `a` renders without a counter, so it may use `<p>` and other block elements freely.
 
+**`table` — tabular data (comparison tables, parameter lists, lookup grids).**
+
+```js
+{ type: "table",
+  headers: [ /* html */, … ],          // required, ≥1 — the top header row
+  rows:    [ [ /* html */, … ], … ],   // required, ≥1 — each row length === headers.length
+  align:   [ "left" | "center" | "right", … ],  // optional — length === headers.length
+  rowHeader: true,                      // optional, default false
+  caption: /* optional plain text */ }
+```
+
+- **Cells are html** — same subset as a `text` block (inline math `\( … \)`, tooltips, `<code>`, `<strong>`/`<em>`, links). Author each cell with `` String.raw`…` ``. Keep cells compact — a large display formula belongs in a `formula` block, not a cell.
+- `rows` are **positional arrays**; every row must have exactly `headers.length` cells (the build fails otherwise).
+- `align` (optional) sets per-column alignment; a right-aligned column also gets tabular figures. `rowHeader: true` renders each row's first cell as a `<th scope="row">` with header emphasis — use it for comparison tables where every row is a labeled item.
+- `caption` is plain text, shown under the table like a figure caption. Wide tables scroll horizontally on narrow screens automatically — you never author overflow markup.
+
 **`resources` — further reading. Place last in a topic's blocks.**
 
 ```js
@@ -104,6 +120,8 @@ Allowed tags in *html*-typed fields: `p`, `ul`, `ol`, `li`, `strong`, `em`, `a`,
 - **Math (MathJax v3):** inline `\( ... \)`, display `$$ ... $$`. All formulas go through MathJax — never unicode pseudo-math, never images of formulas.
 - **Internal topic links:** `<a href="#topic-id">` where `topic-id` is an existing topic `id`.
 - **Code:** `<pre><code>...</code></pre>` for blocks, `<code>` inline. Escape HTML inside code as usual (`&lt;`, `&amp;`).
+
+> Raw `<table>` markup inside a `text` block still works and inherits the same styling, but for real tabular data prefer the dedicated **`table` block** (above) — it validates row/column counts, supports alignment and row headers, and adds the responsive scroll container for you.
 
 ## Authoring the data expression
 
@@ -251,6 +269,17 @@ $$ f'(x) = \lim_{h \to 0} \frac{(x+h)^2 - x^2}{h} $$
 <p>Шаг 2 — раскрываем квадрат, чтобы выделить и сократить h:</p>
 $$ \lim_{h \to 0} \frac{2xh + h^2}{h} = \lim_{h \to 0} (2x + h) $$
 <p>Шаг 3 — после сокращения подстановка h = 0 уже законна: \( f'(x) = 2x \).</p>`
+        },
+        {
+          type: "table",
+          headers: ["Функция", "Производная"],
+          rows: [
+            [String.raw`\( x^n \)`, String.raw`\( n x^{n-1} \)`],
+            [String.raw`\( \sin x \)`, String.raw`\( \cos x \)`],
+            [String.raw`\( e^x \)`, String.raw`\( e^x \)`]
+          ],
+          rowHeader: true,
+          caption: "Производные основных функций"
         },
         {
           type: "resources",
