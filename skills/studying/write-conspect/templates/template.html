@@ -759,6 +759,36 @@ html[data-dir="glass"][data-theme="dark"] .callout {
   text-wrap: pretty;
 }
 
+/* ---------- table ---------- */
+.tbl-fig { margin: 1.8em 0; }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: calc(var(--radius) + 4px); }
+.tbl-fig table.tbl, .prose table {
+  border-collapse: collapse; width: 100%;
+  font-family: var(--font-body); font-size: 0.95em; line-height: 1.5;
+}
+.tbl-fig th, .tbl-fig td, .prose th, .prose td {
+  padding: 0.62em 0.95em; text-align: left; vertical-align: top;
+}
+.tbl-fig thead th, .prose thead th {
+  font-family: var(--font-head); font-weight: var(--head-weight); color: var(--ink);
+  white-space: nowrap;
+  border-bottom: 2px solid color-mix(in oklab, var(--blk-prereq) 55%, var(--line));
+}
+.tbl-fig tbody th[scope="row"], .prose tbody th[scope="row"] {
+  font-weight: 600; color: var(--ink); white-space: nowrap;
+}
+.tbl-fig tbody tr + tr th, .tbl-fig tbody tr + tr td,
+.prose tbody tr + tr th, .prose tbody tr + tr td {
+  border-top: 1px solid var(--line);
+}
+.tbl-fig .a-right { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl-fig .a-center { text-align: center; }
+.prose table { display: block; overflow-x: auto; margin: 1.4em 0; }
+.tbl-cap {
+  font-family: var(--font-ui); font-size: 13.5px; color: var(--ink-soft);
+  text-align: center; margin-top: 10px; text-wrap: pretty;
+}
+
 /* ---------- self-check ---------- */
 .quiz-list { margin: 0; padding-left: 0; list-style: none; counter-reset: q; display: flex; flex-direction: column; gap: 13px; }
 .quiz-list > li { margin-bottom: 0; counter-increment: q; }
@@ -1080,7 +1110,17 @@ window.CONSPECT =
             { title: "Задача обучения с учителем", url: "#supervised", note: R`постановка задачи обучения` },
             { title: "Переобучение и валидация", url: "#overfitting", note: R`оценка обобщающей способности` }
           ] },
-          { type: "text", html: R`<p>Линейные модели предсказывают ответ как взвешенную сумму признаков. Это самый изученный класс моделей: они быстро обучаются, хорошо интерпретируются и служат базовой точкой отсчёта почти в любой задаче. Главный сюжет раздела — <a href="#linreg">линейная регрессия</a> с её аналитическим решением.</p>` }
+          { type: "text", html: R`<p>Линейные модели предсказывают ответ как взвешенную сумму признаков. Это самый изученный класс моделей: они быстро обучаются, хорошо интерпретируются и служат базовой точкой отсчёта почти в любой задаче. Главный сюжет раздела — <a href="#linreg">линейная регрессия</a> с её аналитическим решением.</p>` },
+          { type: "table",
+            headers: ["Модель", "Что минимизирует", "Штраф"],
+            rows: [
+              [R`Линейная регрессия`, R`\( \lVert Xw - y \rVert^2 \)`, R`нет`],
+              [R`Ridge`, R`\( \lVert Xw - y \rVert^2 + \alpha \lVert w \rVert_2^2 \)`, R`\( L_2 \)`],
+              [R`Lasso`, R`\( \lVert Xw - y \rVert^2 + \alpha \lVert w \rVert_1 \)`, R`\( L_1 \)`]
+            ],
+            align: ["left", "left", "center"],
+            rowHeader: true,
+            caption: R`Линейные модели различаются штрафом за величину весов.` }
         ],
         children: [
           {
@@ -1839,6 +1879,30 @@ window.CONSPECT =
     return block;
   }
 
+  function renderTable(b) {
+    var headers = b.headers || [];
+    var rows = b.rows || [];
+    var align = b.align || [];
+    function alignClass(i) {
+      return align[i] === "right" ? "a-right" : align[i] === "center" ? "a-center" : null;
+    }
+    var thead = el("thead", null, el("tr", null, headers.map(function (h, i) {
+      return el("th", { scope: "col", class: alignClass(i), html: h });
+    })));
+    var tbody = el("tbody", null, rows.map(function (row) {
+      return el("tr", null, row.map(function (cell, i) {
+        if (i === 0 && b.rowHeader)
+          return el("th", { scope: "row", class: alignClass(i), html: cell });
+        return el("td", { class: alignClass(i), html: cell });
+      }));
+    }));
+    var fig = el("figure", { class: "tbl-fig" }, [
+      el("div", { class: "tbl-wrap" }, el("table", { class: "tbl" }, [thead, tbody]))
+    ]);
+    if (b.caption) fig.appendChild(el("figcaption", { class: "tbl-cap", text: b.caption }));
+    return fig;
+  }
+
   function renderBlock(b) {
     if (!b || typeof b !== "object") return null;
     switch (b.type) {
@@ -1856,6 +1920,8 @@ window.CONSPECT =
         return renderFormula(b);
       case "selfcheck":
         return renderSelfCheck(b);
+      case "table":
+        return renderTable(b);
       case "resources":
         return renderResources(b);
       default:
