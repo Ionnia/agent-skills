@@ -1,11 +1,11 @@
 # Pedagogy rules for writing a conspect
 
-Distilled from research on cognitive load theory, the worked-example effect, retrieval practice (testing effect), refutation texts, dual coding, advance organizers, and proven note structures (outline method, Cornell notes, concept mapping, layered summaries). Rules are imperative; apply them at the phase they belong to.
+Distilled from research on cognitive load theory, the worked-example effect, refutation texts, dual coding, advance organizers, and proven note structures (outline method, concept mapping, layered summaries). Rules are imperative; apply them at the phase they belong to.
 
 ## Planning the outline
 
 - **Set a learning objective per topic.** Before writing, state (to yourself) what the reader will be able to *do or explain* after the topic. Select content against that objective; cut what doesn't serve it.
-- **Order by prerequisites, always.** Sequence topics so every concept is built only from concepts already covered (or declared external knowledge). This is how you control intrinsic cognitive load: complexity comes from how many *new* interacting elements the reader must juggle at once.
+- **Order by background, always.** Sequence topics so every concept is built only from concepts already covered (or declared background). This is how you control intrinsic cognitive load: complexity comes from how many *new* interacting elements the reader must juggle at once.
 - **Size the smallest topic as one study session's coherent idea.** Not a glossary entry, not a whole course. If a topic's outline needs sub-headings that are themselves teachable units, split it into children; if a child would be three paragraphs, merge it up.
 - **Plan the through-line.** A conspect is a single argument from first topic to last, not a pile of articles. For each topic, know which later topics will need it — if none do and it's not a leaf goal, question why it's there.
 - **Plan figures and examples at outline time**, not as decoration afterward. Decide where a picture carries the idea (dual coding) and where a worked example is the explanation. These outline-time picks are provisional — per-topic research (SKILL step 4) confirms, corrects, or replaces the specific examples before you write.
@@ -13,7 +13,7 @@ Distilled from research on cognitive load theory, the worked-example effect, ret
 
 ## Explaining (per topic)
 
-- **Open with an advance organizer.** First the `prereq` block, then one short paragraph anchoring the new topic to what the reader already knows and previewing where this topic goes. New knowledge sticks only when attached to existing structure.
+- **Open with an advance organizer.** Begin each topic with one short paragraph anchoring the new idea to what the reader already knows and previewing where the topic goes. New knowledge sticks only when attached to existing structure. (There is no separate background block — fold needed background into this opening prose.)
 - **Intuition first, formalism second.** Lead with a concrete case, picture, or analogy that makes the reader *feel* the idea; then generalize into the precise definition or theorem. After an analogy, state explicitly where it breaks — unrepaired analogies become misconceptions.
 - **One new element per step.** Working memory holds roughly four chunks. Each paragraph should add one new idea on top of established ground. If a derivation needs five new ideas, introduce them one at a time, each motivated before used.
 - **Elaborate: answer "why" and "how", not just "what".** State the mechanism, the motivation, the consequence. Explicitly link back to earlier topics ("this is the same limit trick from §X, applied to..."), so knowledge forms a network, not a list.
@@ -32,14 +32,6 @@ Distilled from research on cognitive load theory, the worked-example effect, ret
 - **Fade across examples.** First example fully worked; later examples partially worked ("completion problems") with the reader asked to supply the missing step — the bridge from reading to doing.
 - **Pick examples concrete enough to grasp, generic enough to transfer.** Vivid-but-tangential examples are remembered instead of the concept; keep the example's structure aligned with the concept's structure.
 - **Choose boundary examples deliberately.** One example near the edge of the definition (or a non-example) sharpens the concept more than three central ones.
-
-## Self-check design
-
-- **Test retrieval, not recognition.** Questions must make the reader pull the idea from memory or apply it — "compute", "explain why", "what breaks if". Avoid questions answerable by glancing one paragraph up or by pattern-matching the wording.
-- **Always provide the answer** (collapsed). Unsuccessful retrieval without feedback teaches nothing; the answer should be a model answer, not just "yes".
-- **Mix question types**: one conceptual "why", one application, and — where the topic has a classic trap — one question that walks into it.
-- **Interleave backward.** Occasionally ask a question that requires an *earlier* topic combined with the current one. Spaced, mixed retrieval is what makes the material stick.
-- **Place self-checks at real concept boundaries** — end of a topic or after a dense subtopic — and only where there is something worth retrieving. A reflexive quiz after every block trains the reader to skip them.
 
 ## Common-mistakes callouts (attention blocks)
 

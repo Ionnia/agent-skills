@@ -29,16 +29,6 @@ The conspect is rendered by the bundled template at `templates/template.html`. Y
 
 A block is a discriminated union on `type`. Fields marked *html* accept the HTML subset described below; fields marked *plain* are plain text.
 
-**`prereq` — prerequisites.** Must be the **first block of every topic**, no exceptions.
-
-```js
-{ type: "prereq", items: [ { title: /* html */, url: /* optional string */, note: /* optional html */ } ] }
-```
-
-- `url: "#<topic-id>"` — internal link to an earlier topic; `url: "https://..."` — external link.
-- An item **without** `url` is plain external knowledge, e.g. `{ title: "Линейная алгебра — умножение матриц" }`.
-- `items: []` is valid and renders a "no prerequisites" stub — use it for the very first, foundation topics.
-
 **`text` — main prose flow.**
 
 ```js
@@ -49,12 +39,6 @@ A block is a discriminated union on `type`. Fields marked *html* accept the HTML
 
 ```js
 { type: "attention", html: /* html */ }
-```
-
-**`example` — worked example.**
-
-```js
-{ type: "example", title: /* optional plain */, html: /* html */ }
 ```
 
 **`image` — figure. Always carries a real figure, never a description.** Exactly one of `svg` / `canvas` / `src` is present.
@@ -81,14 +65,6 @@ Choose the mechanism by the decision rule in [diagrams.md](diagrams.md): **SVG**
 - `tex` is the **LaTeX body only** — write `\frac{1}{m}\sum …`, not `$$ \frac{1}{m}\sum … $$`. The template adds the `$$ … $$`.
 - `explain` is an html-with-math field — same subset as a `text` block: paragraphs, lists, `<blockquote>`, inline `\( … \)` and display `$$ … $$`, tooltips. This is where the analogy-driven, plain-words explanation lives. Required and non-empty (an empty `explain` defeats the block's purpose — use a plain `$$…$$` in a `text` block instead).
 - Use it **only for a load-bearing formula a student would genuinely stumble on**, not for every formula. Ordinary formulas stay as `$$…$$` inside `text` blocks. Display formulas only; one block holds exactly one formula.
-
-**`selfcheck` — self-check questions with collapsible answers.**
-
-```js
-{ type: "selfcheck", items: [ { q: /* html */, a: /* optional html */ } ] }
-```
-
-The question number (`1.`, `2.`, …) is prepended automatically via a CSS counter as **inline** content. So `q` must **start with inline content — do not wrap it in `<p>`** (or any block element): a leading block pushes the number onto its own line. Inline markup (`<em>`, `<code>`, tooltips) and math `\( … \)` are fine. The answer `a` renders without a counter, so it may use `<p>` and other block elements freely.
 
 **`table` — tabular data (comparison tables, parameter lists, lookup grids).**
 
@@ -164,7 +140,7 @@ node scripts/build.js <data.js> <conspect-name> [output-dir]
 - `<conspect-name>` — the output filename stem; the script writes `<conspect-name>.html`. Independent of the data's `title`.
 - `[output-dir]` — optional; writes there if given, else the current directory.
 
-The script validates structure before writing: non-empty `title`, valid `lang`, ≥ 1 topic, unique kebab-case ids, `prereq` as each topic's first block, known block types, `formula` blocks with non-empty `tex` + `explain`, and a control-character scan that catches the JSON-backslash bug above (reported with the exact field path). **On any validation failure it prints the error and writes no file (non-zero exit)** — so a broken build never produces an HTML file. An `image` block with no `svg`/`canvas`/`src` prints a non-fatal `WARN` but still builds. On success it prints `OK: "<title>" — N topics → <path>`.
+The script validates structure before writing: non-empty `title`, valid `lang`, ≥ 1 topic, each topic's `blocks` a non-empty array, unique kebab-case ids, only retained block types (a `prereq`, `example`, or `selfcheck` block is rejected with a clear error), `formula` blocks with non-empty `tex` + `explain`, valid `table` shape, and a control-character scan that catches the JSON-backslash bug above (reported with the exact field path). **On any validation failure it prints the error and writes no file (non-zero exit)** — so a broken build never produces an HTML file. An `image` block with no `svg`/`canvas`/`src` prints a non-fatal `WARN` but still builds. On success it prints `OK: "<title>" — N topics → <path>`.
 
 If validation fails, fix `data.js` and re-run — the build is idempotent and repeatable.
 
@@ -179,147 +155,60 @@ If validation fails, fix `data.js` and re-run — the build is idempotent and re
 
 ## Complete example
 
-Two top-level topics, one child topic, every block type used, real LaTeX, `String.raw` form. This entire object literal is what goes between the markers.
+Two topics, every retained block type, real LaTeX, `String.raw` form. This whole object literal is what goes between the markers.
 
 ```js
 {
-  title: "Производная: интуиция и техника",
+  title: "Dropout — кратко",
   lang: "ru",
   topics: [
     {
-      id: "limit-idea",
-      title: "Предел функции",
+      id: "idea",
+      title: "Идея: выключаем нейроны случайно",
       blocks: [
-        {
-          type: "prereq",
-          items: [
-            { title: "Школьная алгебра — функции и их графики" }
-          ]
-        },
         {
           type: "text",
           html: String.raw`
-<p>Иногда нас интересует не значение функции в точке, а то, к чему она
-<strong>стремится</strong> вблизи точки. Это и есть
-<span class="tip" data-tip='Число, к которому значения f(x) подходят сколь угодно близко, когда x приближается к a.'>предел</span>:
-запись \( \lim_{x \to a} f(x) = L \) читается как «при x, стремящемся к a,
-f(x) стремится к L».</p>
-<p>Ключевая интуиция: предел описывает <em>поведение рядом с точкой</em>,
-а не в самой точке — значение \( f(a) \) может вообще не существовать.</p>`
-        },
+<p>Большие сети переобучаются: нейроны «сговариваются», подстраиваясь друг под друга.
+<span class="tip" data-tip='Регуляризация: во время обучения каждый нейрон с вероятностью p обнуляется.'>Dropout</span>
+на каждом шаге обучения случайно выключает часть нейронов, заставляя сеть не полагаться
+на отдельные связи.</p>` },
+        {
+          type: "formula",
+          tex: String.raw`\tilde{h} = \frac{1}{1-p}\, m \odot h, \qquad m_i \sim \mathrm{Bernoulli}(1-p)`,
+          explain: String.raw`<p>Маска \( m \) случайно зануляет компоненты \( h \); деление на \( 1-p \)
+сохраняет средний масштаб активаций, чтобы на инференсе (где dropout выключен) ничего не сдвигалось.</p>`,
+          caption: String.raw`Обучение с маской; на инференсе используется полный слой.` },
         {
           type: "image",
-          svg: `<svg role="img" aria-label="График функции с выколотой точкой в x = a; ветви слева и справа сходятся к высоте L" viewBox="0 0 240 160" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="11">
-  <title>Предел существует, хотя значения в точке нет</title>
-  <line x1="32" y1="18" x2="32" y2="140" stroke="#888"/>
-  <line x1="32" y1="140" x2="222" y2="140" stroke="#888"/>
-  <line x1="32" y1="62" x2="124" y2="62" stroke="#bbb" stroke-dasharray="3 3"/>
-  <line x1="124" y1="62" x2="124" y2="140" stroke="#bbb" stroke-dasharray="3 3"/>
-  <path d="M42 122 Q104 64 124 62" fill="none" stroke="#4060c0" stroke-width="2"/>
-  <path d="M124 62 Q150 60 204 104" fill="none" stroke="#4060c0" stroke-width="2"/>
-  <circle cx="124" cy="62" r="3.6" fill="#fff" stroke="#4060c0" stroke-width="2"/>
-  <text x="18" y="66">L</text>
-  <text x="120" y="153">a</text>
-</svg>`,
-          caption: "Предел существует, хотя значения в точке нет"
-        },
-        {
-          type: "selfcheck",
-          items: [
-            {
-              q: String.raw`Чему равен \( \lim_{x \to 2} \frac{x^2 - 4}{x - 2} \), хотя функция в точке 2 не определена?`,
-              a: String.raw`<p>Сократите: \( \frac{(x-2)(x+2)}{x-2} = x + 2 \) при \( x \neq 2 \), значит предел равен 4.</p>`
-            }
-          ]
-        }
+          svg: String.raw`<svg role="img" aria-label="Слева полная сеть, справа та же сеть с двумя выключенными нейронами" viewBox="0 0 240 120" width="240" style="max-width:100%;height:auto" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="11"><title>Dropout</title><g fill="currentColor"><circle cx="40" cy="30" r="7"/><circle cx="40" cy="60" r="7"/><circle cx="40" cy="90" r="7"/></g><g fill="currentColor"><circle cx="190" cy="30" r="7"/><circle cx="190" cy="60" r="7" fill="none" stroke="#e0823d"/><circle cx="190" cy="90" r="7"/></g><text x="40" y="112" text-anchor="middle">полная</text><text x="190" y="112" text-anchor="middle" fill="#e0823d">dropout</text></svg>`,
+          caption: "Часть нейронов выключается на шаге обучения." }
       ]
     },
     {
-      id: "derivative",
-      title: "Производная",
+      id: "effect",
+      title: "Эффект и режимы",
       blocks: [
         {
-          type: "prereq",
-          items: [
-            { title: "Предел функции", url: "#limit-idea", note: "вся конструкция производной — это один предел" }
-          ]
-        },
-        {
-          type: "text",
-          html: String.raw`
-<p>Средняя скорость изменения функции на отрезке — это наклон секущей:
-\( \frac{f(x+h) - f(x)}{h} \). Сужая отрезок, получаем мгновенную скорость:</p>
-$$ f'(x) = \lim_{h \to 0} \frac{f(x+h) - f(x)}{h} $$
-<p>Это предел из темы <a href="#limit-idea">«Предел функции»</a>,
-применённый к наклону секущей.</p>`
-        },
-        {
           type: "attention",
-          html: String.raw`<p><strong>Непрерывность не означает дифференцируемость.</strong>
-Кажется, что у непрерывной функции всегда есть производная — но
-\( f(x) = |x| \) непрерывна в нуле, а производной там не имеет: пределы
-наклонов слева и справа равны −1 и 1 и не совпадают.</p>`
-        },
-        {
-          type: "example",
-          title: "Производная x² по определению",
-          html: String.raw`
-<p>Шаг 1 — подставляем в определение (другого инструмента пока нет):</p>
-$$ f'(x) = \lim_{h \to 0} \frac{(x+h)^2 - x^2}{h} $$
-<p>Шаг 2 — раскрываем квадрат, чтобы выделить и сократить h:</p>
-$$ \lim_{h \to 0} \frac{2xh + h^2}{h} = \lim_{h \to 0} (2x + h) $$
-<p>Шаг 3 — после сокращения подстановка h = 0 уже законна: \( f'(x) = 2x \).</p>`
-        },
+          html: String.raw`<p><strong>Dropout не применяют на инференсе.</strong> Кажется логичным «усреднить шум»,
+выключая нейроны и при предсказании, — но это добавляет дисперсию без пользы. На инференсе слой работает целиком,
+а компенсация масштаба уже заложена в обучении делением на \( 1-p \).</p>` },
         {
           type: "table",
-          headers: ["Функция", "Производная"],
+          headers: ["Режим", "Маска", "Масштаб"],
           rows: [
-            [String.raw`\( x^n \)`, String.raw`\( n x^{n-1} \)`],
-            [String.raw`\( \sin x \)`, String.raw`\( \cos x \)`],
-            [String.raw`\( e^x \)`, String.raw`\( e^x \)`]
+            [String.raw`Обучение`, String.raw`случайная`, String.raw`\( /(1-p) \)`],
+            [String.raw`Инференс`, String.raw`нет`, String.raw`\( 1 \)`]
           ],
+          align: ["left", "left", "center"],
           rowHeader: true,
-          caption: "Производные основных функций"
-        },
+          caption: "Поведение слоя в двух режимах." },
         {
           type: "resources",
           items: [
-            {
-              title: "3Blue1Brown — Essence of Calculus",
-              url: "https://www.3blue1brown.com/topics/calculus",
-              note: "визуальная интуиция производной"
-            }
-          ]
-        }
-      ],
-      children: [
-        {
-          id: "chain-rule",
-          title: "Производная сложной функции",
-          blocks: [
-            {
-              type: "prereq",
-              items: [
-                { title: "Производная", url: "#derivative" }
-              ]
-            },
-            {
-              type: "text",
-              html: String.raw`<p>Если \( y = f(g(x)) \), скорости умножаются:
-внешняя функция «растягивает» изменение внутренней. Отсюда
-\( \bigl(f(g(x))\bigr)' = f'(g(x)) \cdot g'(x) \).</p>`
-            },
-            {
-              type: "selfcheck",
-              items: [
-                {
-                  q: String.raw`Найдите производную \( \sin(x^2) \).`,
-                  a: String.raw`<p>\( \cos(x^2) \cdot 2x \) — производная внешней функции в точке «внутренняя», умноженная на производную внутренней.</p>`
-                }
-              ]
-            }
-          ]
-        }
+            { title: "Srivastava et al. — Dropout (JMLR 2014)", url: "https://jmlr.org/papers/v15/srivastava14a.html", note: "первоисточник" }
+          ] }
       ]
     }
   ]

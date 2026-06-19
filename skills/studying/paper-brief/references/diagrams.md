@@ -1,18 +1,20 @@
 # Figures in a conspect — generate them, don't describe them
 
 Every `image` block renders a real figure. Never ship a text description as the final
-figure. Pick the lightest mechanism that carries the idea, top to bottom — use the
-first that fits:
+figure. In a paper brief the priority is reversed from a from-scratch note: **the
+paper's own figure comes first** when it carries the idea. Use the first that fits:
 
-1. **SVG** (default) — schematic figures: axes, arrows, boxes, a stylized point cloud
-   or grid, a process flow. Up to ~300 elements. Inline `<svg>` markup in the block's
-   `svg` field.
-2. **Canvas + JS** — only for genuinely dense procedural figures: thick scatter,
-   heatmaps, fractals, thousands of marks. A `draw(ctx, w, h, colors)` function source
-   in the block's `canvas.draw` field.
-3. **Raster, inlined as WebP** — last resort, only for real imagery that cannot be
-   drawn as vector (a photograph, an MRI scan, a document scan). Fetch → compress →
-   base64 via `scripts/image-to-inline.py`, into the block's `src`.
+1. **The paper's real figure (raster, inlined as WebP)** — extract it from the PDF with
+   `scripts/pdf-figures.py` (`--images` for embedded figures, `--pages`/`--rect` to
+   render a region), then inline via `scripts/image-to-inline.py` into the block's
+   `src`. Attribute the source in the `caption` (e.g. "Рис. 3 из статьи"). This is the
+   default whenever the paper has a usable figure for the point you're making.
+2. **SVG** — a redrawn schematic, used to *simplify* a figure too cluttered to reuse, or
+   when the paper has none. Inline `<svg>` markup in the block's `svg` field, up to ~300
+   elements.
+3. **Canvas + JS** — only for genuinely dense procedural figures the paper doesn't
+   provide (thick scatter, heatmaps, fractals). A `draw(ctx, w, h, colors)` function
+   source in the block's `canvas.draw` field.
 
 One picture, one idea. A figure that just restates the prose adds clutter — cut it.
 
