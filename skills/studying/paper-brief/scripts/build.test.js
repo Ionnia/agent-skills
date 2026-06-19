@@ -9,16 +9,17 @@ const path = require("node:path");
 const BUILD = path.join(__dirname, "build.js");
 
 function tmpDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), "conspect-build-"));
+  return fs.mkdtempSync(path.join(os.tmpdir(), "paper-brief-build-"));
 }
 
+// Retained blocks only; first block is NOT prereq (prereq no longer exists).
 const VALID = `{
-  title: "Test Conspect",
+  title: "Test Brief",
   lang: "ru",
   topics: [
-    { id: "a", title: "A", blocks: [ { type: "prereq", items: [] }, { type: "text", html: "<p>hi</p>" } ] },
-    { id: "b", title: "B", blocks: [ { type: "prereq", items: [{ title: "A", url: "#a" }] } ],
-      children: [ { id: "c", title: "C", blocks: [ { type: "prereq", items: [] } ] } ] }
+    { id: "a", title: "A", blocks: [ { type: "text", html: "<p>hi</p>" } ] },
+    { id: "b", title: "B", blocks: [ { type: "text", html: "<p>b</p>" } ],
+      children: [ { id: "c", title: "C", blocks: [ { type: "text", html: "<p>c</p>" } ] } ] }
   ]
 }`;
 
@@ -26,23 +27,45 @@ test("valid data builds an html file and prints OK", () => {
   const dir = tmpDir();
   const dataPath = path.join(dir, "data.js");
   fs.writeFileSync(dataPath, VALID);
-  const out = execFileSync("node", [BUILD, dataPath, "my-notes", dir], { encoding: "utf8" });
-  const htmlPath = path.join(dir, "my-notes.html");
+  const out = execFileSync("node", [BUILD, dataPath, "my-brief", dir], { encoding: "utf8" });
+  const htmlPath = path.join(dir, "my-brief.html");
   assert.ok(fs.existsSync(htmlPath), "html file should exist");
   const html = fs.readFileSync(htmlPath, "utf8");
-  assert.ok(html.includes("Test Conspect"), "spliced data should be present");
+  assert.ok(html.includes("Test Brief"), "spliced data should be present");
   assert.ok(html.includes("/*__CONSPECT_DATA_START__*/"), "start marker preserved");
   assert.ok(html.includes("/*__CONSPECT_DATA_END__*/"), "end marker preserved");
-  assert.match(out, /OK: "Test Conspect" . 3 topics/);
+  assert.match(out, /OK: "Test Brief" . 3 topics/);
 });
 
-test("output dir defaults to cwd when omitted", () => {
+test("a topic whose first block is text (not prereq) builds fine", () => {
   const dir = tmpDir();
   const dataPath = path.join(dir, "data.js");
-  fs.writeFileSync(dataPath, VALID);
-  execFileSync("node", [BUILD, dataPath, "in-cwd"], { encoding: "utf8", cwd: dir });
-  assert.ok(fs.existsSync(path.join(dir, "in-cwd.html")));
+  fs.writeFileSync(dataPath, `{ title: "X", topics: [ { id: "a", title: "A", blocks: [ { type: "text", html: "<p>x</p>" } ] } ] }`);
+  const r = spawnSync("node", [BUILD, dataPath, "ok", dir], { encoding: "utf8" });
+  assert.strictEqual(r.status, 0, r.stderr);
+  assert.ok(fs.existsSync(path.join(dir, "ok.html")));
 });
+
+test("a topic with empty blocks array fails", () => {
+  const dir = tmpDir();
+  const dataPath = path.join(dir, "data.js");
+  fs.writeFileSync(dataPath, `{ title: "X", topics: [ { id: "a", title: "A", blocks: [] } ] }`);
+  const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
+  assert.notStrictEqual(r.status, 0);
+  assert.match(r.stderr, /non-empty array/);
+});
+
+for (const removed of ["prereq", "example", "selfcheck"]) {
+  test(`${removed} block is rejected`, () => {
+    const dir = tmpDir();
+    const dataPath = path.join(dir, "data.js");
+    fs.writeFileSync(dataPath, `{ title: "X", topics: [ { id: "a", title: "A", blocks: [ { type: "${removed}", items: [] } ] } ] }`);
+    const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
+    assert.notStrictEqual(r.status, 0, "should exit non-zero");
+    assert.match(r.stderr, /not supported in paper-brief/);
+    assert.ok(!fs.existsSync(path.join(dir, "broken.html")), "no file on failure");
+  });
+}
 
 test("duplicate ids fail with non-zero exit and write no file", () => {
   const dir = tmpDir();
@@ -54,20 +77,11 @@ test("duplicate ids fail with non-zero exit and write no file", () => {
   assert.ok(!fs.existsSync(path.join(dir, "broken.html")), "no file on failure");
 });
 
-test("missing prereq-first block fails", () => {
-  const dir = tmpDir();
-  const dataPath = path.join(dir, "data.js");
-  fs.writeFileSync(dataPath, `{ title: "X", topics: [ { id: "a", title: "A", blocks: [ { type: "text", html: "<p>x</p>" } ] } ] }`);
-  const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
-  assert.notStrictEqual(r.status, 0);
-  assert.match(r.stderr, /first block must be type prereq/);
-});
-
 test("eaten LaTeX backslash (control char) fails", () => {
   const dir = tmpDir();
   const dataPath = path.join(dir, "data.js");
   const formFeed = String.fromCharCode(12);
-  const obj = { title: "X", topics: [ { id: "a", title: "A", blocks: [ { type: "prereq", items: [] }, { type: "text", html: "$$" + formFeed + "rac{a}{b}$$" } ] } ] };
+  const obj = { title: "X", topics: [ { id: "a", title: "A", blocks: [ { type: "text", html: "$$" + formFeed + "rac{a}{b}$$" } ] } ] };
   fs.writeFileSync(dataPath, JSON.stringify(obj));
   const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
   assert.notStrictEqual(r.status, 0);
@@ -77,7 +91,7 @@ test("eaten LaTeX backslash (control char) fails", () => {
 test("image block without a figure warns but still builds", () => {
   const dir = tmpDir();
   const dataPath = path.join(dir, "data.js");
-  fs.writeFileSync(dataPath, `{ title: "X", topics: [ { id: "a", title: "A", blocks: [ { type: "prereq", items: [] }, { type: "image", caption: "c" } ] } ] }`);
+  fs.writeFileSync(dataPath, `{ title: "X", topics: [ { id: "a", title: "A", blocks: [ { type: "image", caption: "c" } ] } ] }`);
   const r = spawnSync("node", [BUILD, dataPath, "warned", dir], { encoding: "utf8" });
   assert.strictEqual(r.status, 0, "warning is non-fatal");
   assert.match(r.stderr, /WARN a: image block has no/);
@@ -87,7 +101,6 @@ test("image block without a figure warns but still builds", () => {
 const TABLE_OK = `{
   title: "T", lang: "ru",
   topics: [ { id: "a", title: "A", blocks: [
-    { type: "prereq", items: [] },
     { type: "table",
       headers: ["Name", "Formula", "Range"],
       rows: [ ["ReLU", "max(0,x)", "[0, inf)"], ["Tanh", "tanh x", "(-1, 1)"] ],
@@ -139,20 +152,11 @@ test("empty table headers fail", () => {
   assert.match(r.stderr, /non-empty headers array/);
 });
 
-test("bad table align value fails", () => {
+test("formula block with empty explain fails", () => {
   const dir = tmpDir();
   const dataPath = path.join(dir, "data.js");
-  fs.writeFileSync(dataPath, TABLE_OK.replace('"left", "left", "right"', '"left", "left", "middle"'));
+  fs.writeFileSync(dataPath, `{ title: "X", topics: [ { id: "a", title: "A", blocks: [ { type: "formula", tex: "a=b", explain: "" } ] } ] }`);
   const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
   assert.notStrictEqual(r.status, 0);
-  assert.match(r.stderr, /align entries must be left, center or right/);
-});
-
-test("table align length mismatch fails", () => {
-  const dir = tmpDir();
-  const dataPath = path.join(dir, "data.js");
-  fs.writeFileSync(dataPath, TABLE_OK.replace('align: ["left", "left", "right"]', 'align: ["left", "left"]'));
-  const r = spawnSync("node", [BUILD, dataPath, "broken", dir], { encoding: "utf8" });
-  assert.notStrictEqual(r.status, 0);
-  assert.match(r.stderr, /align must be an array of length 3/);
+  assert.match(r.stderr, /formula block needs non-empty/);
 });

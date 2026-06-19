@@ -62,7 +62,8 @@ if (typeof obj.title !== "string" || !obj.title) fail("title must be a non-empty
 if (obj.lang !== undefined && !["ru", "en"].includes(obj.lang)) fail("lang must be ru or en");
 if (!Array.isArray(obj.topics) || obj.topics.length === 0) fail("topics must be a non-empty array");
 
-const known = ["prereq", "text", "attention", "example", "image", "formula", "selfcheck", "resources", "table"];
+const known = ["text", "attention", "image", "formula", "resources", "table"];
+const removed = ["prereq", "example", "selfcheck"];
 const ids = [];
 const warnings = [];
 try {
@@ -71,9 +72,11 @@ try {
       if (!/^[a-z0-9-]+$/.test(t.id || "")) throw new Error("bad topic id: " + JSON.stringify(t.id));
       ids.push(t.id);
       if (typeof t.title !== "string" || !t.title) throw new Error(t.id + ": title missing");
-      if (!Array.isArray(t.blocks) || t.blocks.length === 0 || t.blocks[0].type !== "prereq")
-        throw new Error(t.id + ": first block must be type prereq");
+      if (!Array.isArray(t.blocks) || t.blocks.length === 0)
+        throw new Error(t.id + ": blocks must be a non-empty array");
       for (const blk of t.blocks) {
+        if (removed.includes(blk.type))
+          throw new Error(t.id + ": block type " + JSON.stringify(blk.type) + " is not supported in paper-brief (prereq/example/selfcheck were removed; use text/image/formula/table/attention/resources)");
         if (!known.includes(blk.type)) throw new Error(t.id + ": unknown block type " + JSON.stringify(blk.type));
         if (blk.type === "image" && !blk.svg && !blk.canvas && !blk.src)
           warnings.push("WARN " + t.id + ": image block has no svg/canvas/src (placeholder is deprecated)");
