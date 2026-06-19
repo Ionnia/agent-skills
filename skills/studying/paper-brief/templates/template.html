@@ -1,0 +1,2108 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light" data-dir="academic">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Конспект</title>
+
+<script>
+  /* apply saved / system settings before first paint */
+  (function () {
+    try {
+      var s = localStorage.getItem("conspect-theme");
+      var t = (s === "dark" || s === "light") ? s : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+      document.documentElement.dataset.theme = t;
+    } catch (e) {}
+    try {
+      var f = localStorage.getItem("conspect-font");
+      if (f === "academic" || f === "tech" || f === "glass") document.documentElement.dataset.dir = f;
+    } catch (e) {}
+    try {
+      var fs = parseInt(localStorage.getItem("conspect-fontsize"), 10);
+      if (fs >= 12 && fs <= 32) document.documentElement.style.setProperty("--fs-body", fs + "px");
+    } catch (e) {}
+    try {
+      var w = parseInt(localStorage.getItem("conspect-colwidth"), 10);
+      if (w === 1440 || w === 1024 || w === 768) document.documentElement.style.setProperty("--maxw", w + "px");
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=PT+Serif:ital,wght@0,400;0,700;1,400&family=PT+Sans:wght@400;700&family=Golos+Text:wght@400..700&family=Manrope:wght@400..800&family=Comfortaa:wght@500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..600,0..1,0" rel="stylesheet" />
+
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [["$", "$"], ["\\(", "\\)"]],
+      displayMath: [["$$", "$$"], ["\\[", "\\]"]],
+      processEscapes: true
+    },
+    options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] },
+    startup: { typeset: false }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+
+<style>
+/* ============================================================
+   Conspect — styles
+   Themes: html[data-theme="light|dark"]
+   Directions: html[data-dir="academic|tech|glass"]
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+html {
+  --fs-body: 18px;
+  --maxw: 1024px;
+  --font-title: 'Comfortaa', 'Trebuchet MS', sans-serif;
+  -webkit-text-size-adjust: 100%;
+  /* stronger rule than --line: darker in light theme, whiter in dark theme */
+  --line-strong: color-mix(in oklab, var(--ink) 25%, var(--line));
+}
+
+/* ---------- direction: fonts & shape ---------- */
+html[data-dir="academic"] {
+  --font-head: 'Lora', Georgia, serif;
+  --font-body: 'PT Serif', Georgia, serif;
+  --font-ui: 'PT Sans', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 10px;
+  --head-weight: 600;
+}
+html[data-dir="tech"] {
+  --font-head: 'Golos Text', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Golos Text', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui: 'Golos Text', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 6px;
+  --head-weight: 650;
+}
+html[data-dir="glass"] {
+  --font-head: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
+  --font-ui: 'Manrope', 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --radius: 16px;
+  --head-weight: 750;
+}
+
+/* ---------- theme: colors ---------- */
+html[data-theme="light"] {
+  color-scheme: light;
+  --bg: oklch(0.97 0.008 250);
+  --ink: oklch(0.26 0.015 260);
+  --ink-soft: oklch(0.47 0.02 260);
+  --line: oklch(0.26 0.015 260 / 0.14);
+  --panel-bg: oklch(1 0 0 / 0.55);
+  --pop-bg: oklch(0.99 0.004 250);
+  --hover: oklch(0.26 0.015 260 / 0.06);
+  --shadow: oklch(0.2 0.02 260 / 0.16);
+  --blk-prereq: oklch(0.53 0.19 250);
+  --blk-attn: oklch(0.6 0.2 55);
+  --blk-example: oklch(0.56 0.17 158);
+  --blk-quiz: oklch(0.52 0.15 305);
+  --blk-res: oklch(0.55 0.18 230);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: oklch(0.215 0.012 260);
+  --ink: oklch(0.92 0.008 250);
+  --ink-soft: oklch(0.71 0.015 250);
+  --line: oklch(0.92 0.01 250 / 0.15);
+  --panel-bg: oklch(0.3 0.012 260 / 0.45);
+  --pop-bg: oklch(0.27 0.014 260);
+  --hover: oklch(0.92 0.01 250 / 0.07);
+  --shadow: oklch(0 0 0 / 0.4);
+  --blk-prereq: oklch(0.8 0.16 250);
+  --blk-attn: oklch(0.83 0.16 75);
+  --blk-example: oklch(0.82 0.16 160);
+  --blk-quiz: oklch(0.8 0.17 305);
+  --blk-res: oklch(0.81 0.15 225);
+}
+/* academic gets warm paper tones */
+html[data-dir="academic"][data-theme="light"] {
+  --bg: oklch(0.965 0.012 85);
+  --ink: oklch(0.27 0.02 60);
+  --ink-soft: oklch(0.48 0.025 65);
+  --line: oklch(0.27 0.02 60 / 0.15);
+  --pop-bg: oklch(0.985 0.008 85);
+}
+html[data-dir="academic"][data-theme="dark"] {
+  --bg: oklch(0.215 0.012 70);
+  --pop-bg: oklch(0.27 0.014 70);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: 1.68;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+a { color: var(--blk-prereq); }
+:focus-visible { outline: 2px solid var(--blk-prereq); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- material symbols ---------- */
+.ms {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  font-feature-settings: 'liga';
+  -moz-font-feature-settings: 'liga';
+  text-rendering: optimizeLegibility;
+  display: inline-block;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+  flex: none;
+}
+
+/* ---------- backlight ---------- */
+.backlight {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.bl {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--c), transparent 72%);
+  will-change: transform;
+}
+/* base resting positions (centers in vw/vh); JS takes over when motion is on */
+.b1 { width: 108vmax; height: 108vmax; transform: translate(calc(24vw - 50%), calc(28vh - 50%)); }
+.b2 { width: 92vmax; height: 92vmax; transform: translate(calc(78vw - 50%), calc(30vh - 50%)); }
+.b3 { width: 100vmax; height: 100vmax; transform: translate(calc(52vw - 50%), calc(80vh - 50%)); }
+html[data-theme="dark"] .backlight { filter: saturate(1.15); }
+
+/* ---------- header ---------- */
+.header {
+  position: relative;
+  z-index: 40;
+}
+.header-inner {
+  max-width: none;
+  margin: 0;
+  padding: 26px 32px 0;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.site-title {
+  font-family: var(--font-title);
+  font-weight: 600;
+  /* shrink the font as the box gets narrower so long titles still fit */
+  font-size: clamp(15px, 1.4vw, 22px);
+  letter-spacing: 0.01em;
+  margin: 0;
+  /* fill the left gutter so the breadcrumb lines up with the content's left
+     text edge: (100vw - column)/2 + page-pad(24) - header-pad(32) - gap(14)
+     - crumb-pad(12) = (100vw - column)/2 - 34. Floor so it never collapses. */
+  flex: none;
+  width: max(256px, calc((100vw - var(--maxw)) / 2 - 34px));
+  line-height: 1.2;
+  /* wrap long titles instead of forcing a single line */
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+.header-actions { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--panel-bg);
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 0;
+}
+.icon-btn:hover { color: var(--ink); background: var(--hover); }
+.icon-btn .ms { font-size: 19px; }
+/* ghost icon button: just a semitransparent glyph, opaque on hover */
+.icon-btn.ghost {
+  border: 0;
+  background: none;
+  opacity: 0.5;
+  transition: opacity 0.15s, color 0.15s;
+}
+.icon-btn.ghost:hover { opacity: 1; background: none; color: var(--ink); }
+
+/* ---------- text settings (Aa) popover ---------- */
+.ts-wrap { position: relative; display: inline-flex; }
+.ts-aa {
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+.ts-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 248px;
+  transform-origin: top right;
+  animation: popIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  background:
+    linear-gradient(160deg, color-mix(in oklab, var(--bg) 32%, transparent), color-mix(in oklab, var(--bg) 14%, transparent));
+  backdrop-filter: blur(34px) saturate(1.7);
+  -webkit-backdrop-filter: blur(34px) saturate(1.7);
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  border-radius: 20px;
+  box-shadow: 0 14px 36px var(--shadow);
+  padding: 14px;
+  z-index: 50;
+}
+html[data-theme="dark"] .ts-menu { border-color: color-mix(in oklab, var(--ink) 5%, transparent); }
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.94) translateY(-6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+/* transform-only (no opacity fade) so the frosted glass never goes see-through
+   mid-animation and reveal lines behind it */
+@keyframes popInGlass {
+  from { transform: scale(0.96) translateY(-5px); }
+  to { transform: scale(1) translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ts-menu, .crumb-menu { animation: none; }
+}
+.ts-label {
+  font-family: var(--font-ui);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 2px 9px;
+}
+.ts-label-row { display: flex; justify-content: space-between; margin-top: 16px; }
+.ts-size-val { color: var(--ink); font-weight: 600; letter-spacing: 0; }
+.ts-fonts { display: flex; flex-direction: column; gap: 6px; }
+.ts-font {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+.ts-font:hover { background: var(--hover); }
+.ts-font.is-on {
+  background: color-mix(in oklab, var(--blk-prereq) 14%, transparent);
+  border-color: color-mix(in oklab, var(--blk-prereq) 35%, transparent);
+}
+.ts-font-aa { font-size: 20px; line-height: 1; width: 30px; flex: none; }
+.ts-font-name { font-family: var(--font-ui); font-size: 14px; font-weight: 600; }
+.ts-size { display: flex; align-items: center; gap: 10px; padding: 0 2px; }
+.ts-size-min, .ts-size-max { color: var(--ink-soft); font-family: var(--font-title); line-height: 1; flex: none; }
+.ts-size-min { font-size: 13px; }
+.ts-size-max { font-size: 21px; }
+.ts-width { display: flex; gap: 6px; }
+.ts-wbtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 0;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.ts-wbtn .ms { font-size: 22px; }
+.ts-wico { display: block; }
+.ts-wbtn:hover { background: var(--hover); color: var(--ink); }
+.ts-wbtn.is-on {
+  background: color-mix(in oklab, var(--blk-prereq) 14%, transparent);
+  border-color: color-mix(in oklab, var(--blk-prereq) 38%, transparent);
+  color: var(--ink);
+}
+.ts-range {
+  flex: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--ink) 22%, transparent);
+  outline: none;
+}
+.ts-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--blk-prereq);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+}
+.ts-range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--blk-prereq);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+}
+
+/* breadcrumbs */
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  flex-wrap: wrap;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--ink-soft);
+  min-width: 0;
+}
+.crumb-sep { font-size: 16px; opacity: 0.55; }
+.crumb-wrap { position: relative; display: inline-flex; }
+.crumb-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  border: 0;
+  background: none;
+  padding: 4px 12px;
+  border-radius: 16px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.crumb-btn:hover { background: var(--hover); color: var(--ink); }
+.crumb-btn[aria-current="true"] { color: var(--ink); font-weight: 600; }
+.crumb-caret { font-size: 16px; opacity: 0.6; transition: transform 0.18s ease; }
+.crumb-caret[data-open="1"] { transform: rotate(180deg); opacity: 0.9; }
+.crumb-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 250px;
+  max-width: 320px;
+  transform-origin: top left;
+  animation: popInGlass 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  isolation: isolate;
+  border-radius: 20px;
+  padding: 6px;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+}
+/* glass on a ::before layer so .crumb-menu is NOT a backdrop-filter ancestor
+   of the submenu (nested backdrop-filters break the inner one) */
+.crumb-menu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 20px;
+  background:
+    linear-gradient(160deg, color-mix(in oklab, var(--bg) 32%, transparent), color-mix(in oklab, var(--bg) 14%, transparent));
+  backdrop-filter: blur(34px) saturate(1.7);
+  -webkit-backdrop-filter: blur(34px) saturate(1.7);
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  box-shadow: 0 14px 36px var(--shadow);
+}
+.crumb-menu > .crumb-item-wrap { position: relative; z-index: 1; }
+.crumb-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 16px;
+  color: var(--ink);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  text-decoration: none;
+  line-height: 1.35;
+}
+.crumb-item:hover { background: var(--hover); }
+.crumb-item.is-here { font-weight: 700; }
+.crumb-item .ms { font-size: 16px; color: var(--blk-prereq); }
+.crumb-item-pad { width: 16px; flex: none; }
+.crumb-item-label { flex: 1; }
+
+/* nested sub-theme flyout */
+.crumb-item-wrap { position: relative; }
+.crumb-sub-caret { font-size: 18px !important; color: var(--ink-soft) !important; opacity: 0.6; margin-right: -2px; }
+.crumb-item-wrap.has-sub:hover > .crumb-item { background: var(--hover); }
+.crumb-submenu {
+  position: absolute;
+  top: -7px;
+  left: 100%;
+  margin-left: 5px;
+  min-width: 230px;
+  max-width: 300px;
+  background:
+    linear-gradient(160deg, color-mix(in oklab, var(--bg) 32%, transparent), color-mix(in oklab, var(--bg) 14%, transparent)) !important;
+  backdrop-filter: blur(34px) saturate(1.7) !important;
+  -webkit-backdrop-filter: blur(34px) saturate(1.7) !important;
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 14px 36px var(--shadow);
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  z-index: 51;
+  transform-origin: top left;
+  animation: popInGlass 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+html[data-theme="dark"] .crumb-submenu { border-color: color-mix(in oklab, var(--ink) 5%, transparent); }
+/* hover bridge so the cursor can cross the gap without closing */
+.crumb-submenu::before { content: ""; position: absolute; top: 0; left: -9px; width: 9px; height: 100%; }
+.crumb-item-wrap.has-sub:hover > .crumb-submenu { display: flex; }
+@media (prefers-reduced-motion: reduce) { .crumb-submenu { animation: none; } }
+
+/* menu (contents) button — icon-only, sits below the divider on the left */
+.menu-row {
+  padding: 11px 0 0;
+}
+.menu-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  margin-left: -8px;
+  border-radius: 50%;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  opacity: 0.65;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+}
+.menu-btn:hover { opacity: 1; color: var(--ink); background: var(--hover); }
+.menu-btn .ms { font-size: 22px; }
+.menu-ico { display: block; }
+
+/* ---------- drawer (topic tree) ---------- */
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 60;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  bottom: auto;
+  max-height: calc(100vh - 32px);
+  width: min(320px, 86vw);
+  z-index: 61;
+  background:
+    linear-gradient(160deg, color-mix(in oklab, var(--bg) 32%, transparent), color-mix(in oklab, var(--bg) 14%, transparent));
+  backdrop-filter: blur(34px) saturate(1.7);
+  -webkit-backdrop-filter: blur(34px) saturate(1.7);
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  border-radius: 20px;
+  transform: translateX(calc(-100% - 28px));
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 24px 60px var(--shadow);
+}
+html[data-theme="dark"] .drawer {
+  box-shadow: 0 24px 60px var(--shadow);
+  border-color: color-mix(in oklab, var(--ink) 5%, transparent);
+}
+html[data-theme="dark"] .crumb-menu::before {
+  border-color: color-mix(in oklab, var(--ink) 5%, transparent);
+}
+
+.drawer.open { transform: none; }
+.drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 12px 10px 20px;
+  font-family: var(--font-title);
+  font-weight: 600;
+  font-size: 17px;
+}
+.drawer-body { overflow: auto; padding: 4px 12px 20px; }
+.tree { list-style: none; margin: 0; padding: 0; font-family: var(--font-ui); font-size: 14.5px; }
+.tree .tree { padding-left: 20px; }
+.tree-row { display: flex; align-items: center; gap: 1px; border-radius: 16px; padding-left: 7px; }
+.tree-row.is-current { background: color-mix(in oklab, var(--blk-prereq) 14%, transparent); }
+.tree-row.is-current .tree-link { font-weight: 700; color: var(--ink); }
+.tree-link {
+  flex: 1;
+  padding: 7px 12px;
+  color: var(--ink-soft);
+  text-decoration: none;
+  border-radius: 16px;
+  line-height: 1.35;
+}
+.tree-link:hover { color: var(--ink); }
+.tree-chev {
+  width: 26px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 0;
+  flex: none;
+}
+.tree-chev .ms { font-size: 18px; transition: transform 0.18s; }
+.tree-chev[data-open="1"] .ms { transform: rotate(90deg); }
+.tree-dot { cursor: default; }
+.tree-dot::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--line); }
+
+/* ---------- page / topic ---------- */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 22px 24px 88px;
+}
+.topic-kicker {
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 10px;
+}
+html[data-dir="tech"] .topic-kicker { font-family: var(--font-mono); font-weight: 500; }
+.topic-title {
+  font-family: var(--font-head);
+  font-weight: var(--head-weight);
+  font-size: 38px;
+  line-height: 1.16;
+  letter-spacing: -0.01em;
+  margin: 0 0 26px;
+  text-wrap: balance;
+}
+
+.prose p { margin: 0 0 1em; text-wrap: pretty; }
+.prose ul, .prose ol { margin: 0 0 1em; padding-left: 1.35em; }
+.prose li { margin-bottom: 0.4em; }
+.prose strong { font-weight: 700; }
+
+mjx-container[display="true"] {
+  margin: 1.05em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  padding: 3px 2px;
+}
+
+/* tooltip terms */
+.tip {
+  cursor: help;
+  text-decoration: underline dotted;
+  text-decoration-color: color-mix(in oklab, var(--blk-prereq) 75%, transparent);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3.5px;
+}
+.tip:hover { color: var(--blk-prereq); }
+.tip-pop {
+  position: fixed;
+  z-index: 80;
+  max-width: 340px;
+  background: var(--pop-bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 14px 40px var(--shadow);
+  padding: 12px 14px;
+  font-family: var(--font-ui);
+  font-size: 14.5px;
+  line-height: 1.55;
+  opacity: 0;
+  transform: scale(0.97) translateY(5px);
+  transform-origin: center bottom;
+  transition: opacity 0.1s ease, transform 0.13s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+.tip-pop[data-placement="bottom"] { transform-origin: center top; transform: scale(0.97) translateY(-5px); }
+.tip-pop.is-ready { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .tip-pop { transition: opacity 0.12s ease; transform: none; }
+}
+.tip-pop p { margin: 0 0 0.6em; }
+.tip-pop p:last-child { margin-bottom: 0; }
+
+/* ---------- callout blocks ---------- */
+.callout {
+  border-radius: 28px;
+  border: 1px solid color-mix(in oklab, var(--blk) 34%, transparent);
+  background: color-mix(in oklab, var(--blk) 15%, var(--bg));
+  padding: 20px;
+  margin: 1.7em 0;
+}
+/* Академия: brighter, cleaner card tints (less muddy than mixing into warm paper) */
+html[data-dir="academic"][data-theme="light"] .callout {
+  background: color-mix(in oklab, var(--blk) 12%, #fff);
+  border-color: color-mix(in oklab, var(--blk) 30%, transparent);
+}
+html[data-dir="academic"][data-theme="dark"] .callout {
+  background: color-mix(in oklab, var(--blk) 17%, oklch(0.255 0.013 70));
+}
+.c-prereq { --blk: var(--blk-prereq); }
+.c-attn { --blk: var(--blk-attn); }
+.c-example { --blk: var(--blk-example); }
+.c-quiz { --blk: var(--blk-quiz); }
+.c-res { --blk: var(--blk-res); }
+.callout-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-ui);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--blk);
+  margin-bottom: 24px;
+}
+.callout-head .ms { font-size: 18px; }
+/* tighten the title gap when prerequisites are empty */
+.callout:has(.prereq-none) .callout-head { margin-bottom: 8px; }
+html[data-dir="tech"] .callout-head { font-family: var(--font-mono); font-weight: 600; font-size: 12.5px; letter-spacing: 0.09em; }
+.callout-body { font-size: calc(var(--fs-body) * 0.94); padding-left: 20px; }
+.callout-body p { margin: 0 0 0.8em; text-wrap: pretty; }
+.callout-body p:last-child, .callout-body ul:last-child, .callout-body ol:last-child { margin-bottom: 0; }
+.callout-body ul, .callout-body ol { margin: 0 0 0.8em; padding-left: 0; }
+.callout-body li { margin-bottom: 0.3em; }
+
+/* glass direction: translucent panels over the glow */
+html[data-dir="glass"] .callout {
+  background: color-mix(in oklab, var(--blk) 18%, oklch(1 0 0 / 0.4));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+html[data-dir="glass"][data-theme="dark"] .callout {
+  background: color-mix(in oklab, var(--blk) 20%, oklch(0.26 0.012 260 / 0.45));
+}
+
+/* ---------- figure ---------- */
+.figure { margin: 1.8em 0; }
+.fig-ph {
+  border: 1.5px dashed color-mix(in oklab, var(--ink) 30%, transparent);
+  border-radius: 28px;
+  background: repeating-linear-gradient(45deg, var(--hover) 0 12px, transparent 12px 24px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  color: var(--ink-soft);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.figure img { display: block; width: 100%; border-radius: 28px; }
+.fig-svg { display: block; }
+.fig-svg svg { display: block; width: 100%; height: auto; border-radius: 28px; color: var(--ink); }
+.fig-canvas { display: block; width: 100%; border-radius: 28px; overflow: hidden; }
+.fig-canvas canvas { display: block; width: 100%; height: 100%; }
+.fig-cap {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 10px;
+  text-wrap: pretty;
+}
+
+/* ---------- table ---------- */
+.tbl-fig { margin: 1.8em 0; }
+.tbl-wrap { overflow-x: auto; border-top: 1.5px solid var(--line-strong); border-bottom: 1.5px solid var(--line-strong); }
+.tbl-fig table.tbl, .prose table {
+  border-collapse: collapse; width: 100%;
+  font-family: var(--font-body); font-size: 0.95em; line-height: 1.5;
+}
+.tbl-fig th, .tbl-fig td, .prose th, .prose td {
+  padding: 0.62em 0.95em; text-align: left; vertical-align: top;
+}
+.tbl-fig thead th, .prose thead th {
+  font-family: var(--font-head); font-weight: var(--head-weight); color: var(--ink);
+  white-space: nowrap;
+  border-bottom: 1.5px solid var(--line-strong);
+}
+.tbl-fig tbody th[scope="row"], .prose tbody th[scope="row"] {
+  font-weight: 600; color: var(--ink); white-space: nowrap;
+}
+.tbl-fig tbody tr + tr th, .tbl-fig tbody tr + tr td,
+.prose tbody tr + tr th, .prose tbody tr + tr td {
+  border-top: 1px solid var(--line);
+}
+.tbl-fig .a-right { text-align: right; font-variant-numeric: tabular-nums; }
+.tbl-fig .a-center { text-align: center; }
+.prose table { display: block; overflow-x: auto; margin: 1.4em 0; border-top: 1.5px solid var(--line-strong); border-bottom: 1.5px solid var(--line-strong); }
+.tbl-cap {
+  font-family: var(--font-ui); font-size: 13.5px; color: var(--ink-soft);
+  text-align: center; margin-top: 10px; text-wrap: pretty;
+}
+
+/* ---------- self-check ---------- */
+.quiz-list { margin: 0; padding-left: 0; list-style: none; counter-reset: q; display: flex; flex-direction: column; gap: 13px; }
+.quiz-list > li { margin-bottom: 0; counter-increment: q; }
+.quiz-q { font-weight: inherit; }
+.quiz-q::before { content: counter(q) ". "; }
+/* If a question is authored wrapped in <p>, keep its first line inline with the number. */
+.quiz-q > p:first-child { display: inline; margin: 0; }
+.quiz-btn {
+  margin-top: 7px;
+  border: 1px solid color-mix(in oklab, var(--blk) 42%, transparent);
+  background: none;
+  color: var(--blk);
+  border-radius: 999px;
+  padding: 3px 13px;
+  font-family: var(--font-ui);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.quiz-btn:hover { background: color-mix(in oklab, var(--blk) 12%, transparent); }
+.quiz-a-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: 0;
+  transition: grid-template-rows 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), opacity 0.26s ease, margin-top 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.quiz-a-wrap.is-open {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 8px;
+}
+.quiz-a-inner { overflow: hidden; min-height: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .quiz-a-wrap { transition: opacity 0.15s ease; }
+}
+.quiz-a {
+  padding: 20px;
+  border-radius: 20px;
+  background: color-mix(in oklab, var(--blk) 15%, transparent);
+  font-size: calc(var(--fs-body) * 0.92);
+}
+
+/* ---------- resources ---------- */
+.res-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.res-list > li { display: flex; gap: 9px; }
+.res-ico { font-size: 18px; line-height: 1.2; color: var(--ink-soft); opacity: 0.6; flex: none; margin-top: 1px; transform: rotate(-45deg); }
+.res-main { display: flex; flex-direction: column; min-width: 0; }
+.res-link {
+  display: inline-block;
+  align-self: flex-start;
+  color: var(--blk-prereq);
+  font-weight: 700;
+  line-height: 1.1;
+  text-decoration: none;
+}
+.res-link::first-letter { text-transform: uppercase; }
+.res-link:hover { color: color-mix(in oklab, var(--blk-prereq) 72%, var(--ink)); text-decoration: underline; text-underline-offset: 3px; }
+.res-note { display: block; margin-top: -3px; color: var(--ink-soft); font-size: calc(var(--fs-body) * 0.74); font-family: var(--font-ui); font-style: italic; line-height: 1.3; }
+
+/* empty prerequisites */
+.prereq-none { margin: 0; font-style: italic; font-size: calc(var(--fs-body) * 0.85); color: var(--ink-soft); opacity: 0.62; }
+
+/* prerequisites — numbered titled list */
+.prereq-list { list-style: none; margin: 0; padding: 0; counter-reset: prq; display: flex; flex-direction: column; gap: 14px; }
+.prereq-item { display: flex; gap: 11px; counter-increment: prq; }
+.prereq-item::before {
+  content: counter(prq);
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blk-prereq);
+  background: color-mix(in oklab, var(--blk-prereq) 17%, transparent);
+  border-radius: 50%;
+}
+.prereq-main { display: flex; flex-direction: column; min-width: 0; }
+.prereq-link, .prereq-title {
+  align-self: flex-start;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.prereq-link { color: var(--blk-prereq); text-decoration: none; }
+.prereq-link:hover { color: color-mix(in oklab, var(--blk-prereq) 72%, var(--ink)); text-decoration: underline; text-underline-offset: 3px; }
+.prereq-title { color: var(--ink); }
+.prereq-note { display: block; margin-top: 1px; color: var(--ink-soft); font-size: calc(var(--fs-body) * 0.8); font-family: var(--font-ui); font-style: italic; line-height: 1.35; }
+.prereq-note .tip { text-underline-offset: 2.5px; }
+
+/* ---------- bottom navigation ---------- */
+.bottomnav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 60px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-ui);
+}
+.bn {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 20px;
+  border-radius: 28px;
+  border: 1px solid var(--line);
+  background: var(--panel-bg);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.bn:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--ink) 28%, transparent);
+  box-shadow: 0 8px 24px var(--shadow);
+}
+.bn-prev { grid-column: 1; }
+.bn-next { grid-column: 2; text-align: right; align-items: flex-end; }
+.bn-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.bn-label .ms { font-size: 16px; }
+.bn-title { font-weight: 700; font-size: 15.5px; line-height: 1.3; }
+html[data-dir="glass"] .bn,
+html[data-dir="glass"] .menu-btn,
+html[data-dir="glass"] .icon-btn {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* fatal-error fallback (bad/empty data) */
+.fatal { font-family: var(--font-ui); }
+
+@media (max-width: 560px) {
+  .site-title { width: auto; max-width: 100%; font-size: 18px; }
+  .topic-title { font-size: 30px; }
+  .bottomnav { grid-template-columns: 1fr; }
+  .bn-next { grid-column: 1; }
+  .header-inner { padding: 11px 16px 9px; }
+  .page { padding: 32px 18px 64px; }
+}
+
+/* ---------- formula block + explanation dialog ---------- */
+.formula-block { margin: 1.1em 0; }
+.formula-row { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.formula-math { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+.formula-math mjx-container[display="true"] { margin: 0 !important; }
+.formula-q {
+  flex: 0 0 auto;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  border: 1.4px solid var(--ink-soft);
+  color: var(--ink-soft);
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 12px; font-weight: 700; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.formula-q:hover { color: var(--ink); border-color: var(--ink); }
+.formula-q:focus-visible { outline: 2px solid var(--blk-prereq); outline-offset: 2px; }
+.formula-cap {
+  font-family: var(--font-ui);
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  text-align: center;
+  margin-top: 10px;
+  text-wrap: pretty;
+}
+
+.fdlg-overlay {
+  position: fixed; inset: 0;
+  background: transparent;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  z-index: 200;
+}
+.fdlg-overlay.is-open { display: flex; }
+body.fdlg-lock { overflow: hidden; }
+.fdlg-panel {
+  position: relative;
+  width: min(880px, 100%);
+  max-height: 88vh;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  background: var(--pop-bg);
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  border-radius: 20px;
+  box-shadow: 0 14px 36px var(--shadow);
+  animation: popIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+html[data-theme="dark"] .fdlg-panel { border-color: color-mix(in oklab, var(--ink) 5%, transparent); }
+@media (prefers-reduced-motion: reduce) { .fdlg-panel { animation: none; } }
+.fdlg-head { padding: 28px 32px 18px; flex: 0 0 auto; }
+.fdlg-label {
+  font-family: var(--font-ui);
+  font-size: 11.5px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 6px;
+}
+.fdlg-formula { overflow-x: auto; overflow-y: hidden; }
+.fdlg-formula mjx-container[display="true"] { margin: 0 !important; }
+.fdlg-divider { height: 1px; background: var(--line); margin: 0 32px; flex: 0 0 auto; }
+.fdlg-body { padding: 22px 32px 30px; overflow-y: auto; }
+.fdlg-close {
+  position: absolute; top: 16px; right: 18px;
+  width: 30px; height: 30px;
+  border: none; border-radius: 9px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: var(--font-ui);
+  font-size: 22px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.fdlg-close:hover { background: var(--hover); color: var(--ink); }
+.fdlg-close:focus-visible { outline: 2px solid var(--blk-prereq); outline-offset: 2px; }
+@media (max-width: 560px) {
+  .fdlg-head { padding: 24px 18px 16px; }
+  .fdlg-divider { margin: 0 18px; }
+  .fdlg-body { padding: 18px 18px 24px; }
+}
+</style>
+</head>
+<body>
+<noscript>
+  <div style="max-width:640px;margin:80px auto;padding:0 24px;font-family:Georgia,serif;font-size:18px;line-height:1.6;">
+    <p>Для просмотра этого конспекта необходим JavaScript — включите его в настройках браузера.</p>
+    <p>This interactive conspect requires JavaScript — please enable it in your browser settings.</p>
+  </div>
+</noscript>
+<div id="root"></div>
+
+<script>
+window.CONSPECT =
+/*__CONSPECT_DATA_START__*/
+(function () {
+  var R = String.raw;
+  return {
+    title: "Машинное обучение",
+    lang: "ru",
+    topics: [
+      {
+        id: "intro",
+        title: "Введение",
+        blocks: [
+          { type: "prereq", items: [] },
+          { type: "text", html: R`<p>Машинное обучение — построение алгоритмов, которые улучшают качество решения задачи по мере накопления опыта, то есть данных. Вместо того чтобы программировать правило вручную, мы показываем модели примеры и позволяем ей восстановить закономерность по <span class="tip" data-tip='Конечный набор объектов с известными ответами, по которому настраивается модель: \(X = \{(x_i, y_i)\}_{i=1}^{\ell}\).'>выборке</span>.</p>
+<p>Каждый объект описывается набором <span class="tip" data-tip='Измеримая характеристика объекта: число, категория, бинарный флаг. Объект представляется вектором признаков \(x \in \mathbb{R}^d\).'>признаков</span>. По типу доступной информации выделяют три постановки:</p>
+<ul>
+<li><strong>Обучение с учителем</strong> — для каждого объекта известен правильный ответ (регрессия, классификация);</li>
+<li><strong>Обучение без учителя</strong> — ответов нет, ищем структуру в данных;</li>
+<li><strong>Обучение с подкреплением</strong> — агент учится по сигналу награды.</li>
+</ul>
+<p>В этом конспекте мы сосредоточимся на обучении с учителем: от постановки задачи до линейных моделей.</p>` }
+        ],
+        children: [
+          {
+            id: "supervised",
+            title: "Задача обучения с учителем",
+            blocks: [
+              { type: "prereq", items: [
+                { title: "Теория вероятностей", note: R`понятие <span class="tip" data-tip='Среднее значение случайной величины: \( \mathbb{E}[\xi] = \sum_k k \cdot P(\xi = k) \) в дискретном случае.'>математического ожидания</span>` },
+                { title: "Линейная алгебра", note: R`векторы и операции над ними` }
+              ] },
+              { type: "text", html: R`<p>Дано: обучающая выборка из \( \ell \) пар «объект — ответ», где объекты описаны векторами признаков \( x_i \in \mathbb{R}^d \), а ответы \( y_i \) лежат в пространстве \( \mathbb{Y} \). Если \( \mathbb{Y} = \mathbb{R} \) — это задача регрессии, если \( \mathbb{Y} \) — конечное множество классов, то классификации.</p>
+<p>Требуется построить алгоритм \( a: \mathbb{X} \to \mathbb{Y} \), который будет хорошо предсказывать ответы на <em>новых</em> объектах. Ошибки измеряет <span class="tip" data-tip='Функция \(L(\hat y, y)\), штрафующая расхождение прогноза \(\hat y\) и истинного ответа \(y\). Например, квадрат ошибки \((\hat y - y)^2\).'>функция потерь</span>, а средняя ошибка на выборке называется эмпирическим риском:</p>
+<p>$$ Q(a, X) = \frac{1}{\ell} \sum_{i=1}^{\ell} L\big(a(x_i),\, y_i\big) \;\to\; \min_{a \in \mathcal{A}} . $$</p>` },
+              { type: "attention", html: R`<p>Минимум эмпирического риска — не самоцель. Нас интересует ошибка на <em>новых</em> данных, а её минимизация по обучающей выборке может привести к переобучению. Никогда не оценивайте качество модели по тем же данным, на которых она обучалась.</p>` },
+              { type: "selfcheck", items: [
+                { q: R`Чем задача регрессии формально отличается от задачи классификации?`, a: R`Пространством ответов: в регрессии \( \mathbb{Y} = \mathbb{R} \) (непрерывные ответы), в классификации \( \mathbb{Y} \) — конечное множество меток.` },
+                { q: R`Что такое эмпирический риск?`, a: R`Средняя ошибка \( Q(a, X) \) на обучающей выборке. Малый эмпирический риск не гарантирует малую ошибку на новых данных.` }
+              ] }
+            ]
+          },
+          {
+            id: "overfitting",
+            title: "Переобучение и валидация",
+            blocks: [
+              { type: "prereq", items: [
+                { title: "Задача обучения с учителем", url: "#supervised", note: R`общая постановка задачи обучения` }
+              ] },
+              { type: "text", html: R`<p><strong>Переобучение</strong> — ситуация, когда модель почти идеально описывает обучающую выборку, но плохо предсказывает на новых данных: вместо закономерности она выучила шум. Слишком простое семейство, наоборот, даёт <span class="tip" data-tip='Модель слишком проста, чтобы уловить закономерность: большая ошибка и на обучении, и на новых данных.'>недообучение</span>.</p>
+<p>Чтобы честно оценить обобщающую способность, данные делят на обучающую и отложенную части. Более устойчивая оценка — кросс-валидация по \( k \) блокам:</p>
+<p>$$ CV = \frac{1}{k} \sum_{j=1}^{k} Q\big(a_j,\, X_j^{\text{test}}\big). $$</p>` },
+              { type: "image", svg: R`<svg role="img" aria-label="Ошибка на обучении и на контроле в зависимости от сложности модели" viewBox="0 0 320 200" width="320" style="max-width:100%;height:auto" xmlns="http://www.w3.org/2000/svg" font-family="system-ui, sans-serif" font-size="11"><title>Кривые ошибки: обучение и контроль</title><g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><line x1="44" y1="24" x2="44" y2="168"/><line x1="44" y1="168" x2="300" y2="168"/></g><path d="M54,58 C120,120 200,148 292,156" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M54,72 C130,168 170,168 292,64" fill="none" stroke="#e0823d" stroke-width="2.5" stroke-linecap="round"/><g fill="currentColor"><text x="40" y="20" text-anchor="end">ошибка</text><text x="298" y="186" text-anchor="end">сложность</text><text x="236" y="150">обучение</text><text x="120" y="60" fill="#e0823d">контроль</text></g></svg>`, caption: "С ростом сложности ошибка на обучении монотонно падает, а на контроле — сначала падает, затем растёт.", aspect: "16/9" },
+              { type: "selfcheck", items: [
+                { q: R`Почему кросс-валидация надёжнее одного разбиения train/test?`, a: R`Каждый объект побывает в контроле ровно один раз, оценка усредняется по \(k\) разбиениям — меньше зависимость от случайности конкретного разбиения.` }
+              ] },
+              { type: "resources", items: [
+                { title: "scikit-learn: Cross-validation", url: "https://scikit-learn.org/stable/modules/cross_validation.html", note: "практическое руководство по схемам валидации" }
+              ] }
+            ]
+          }
+        ]
+      },
+      {
+        id: "linear",
+        title: "Линейные модели",
+        blocks: [
+          { type: "prereq", items: [
+            { title: "Задача обучения с учителем", url: "#supervised", note: R`постановка задачи обучения` },
+            { title: "Переобучение и валидация", url: "#overfitting", note: R`оценка обобщающей способности` }
+          ] },
+          { type: "text", html: R`<p>Линейные модели предсказывают ответ как взвешенную сумму признаков. Это самый изученный класс моделей: они быстро обучаются, хорошо интерпретируются и служат базовой точкой отсчёта почти в любой задаче. Главный сюжет раздела — <a href="#linreg">линейная регрессия</a> с её аналитическим решением.</p>` },
+          { type: "table",
+            headers: ["Модель", "Что минимизирует", "Штраф"],
+            rows: [
+              [R`Линейная регрессия`, R`\( \lVert Xw - y \rVert^2 \)`, R`нет`],
+              [R`Ridge`, R`\( \lVert Xw - y \rVert^2 + \alpha \lVert w \rVert_2^2 \)`, R`\( L_2 \)`],
+              [R`Lasso`, R`\( \lVert Xw - y \rVert^2 + \alpha \lVert w \rVert_1 \)`, R`\( L_1 \)`]
+            ],
+            align: ["left", "left", "center"],
+            rowHeader: true,
+            caption: R`Линейные модели различаются штрафом за величину весов.` }
+        ],
+        children: [
+          {
+            id: "linreg",
+            title: "Линейная регрессия",
+            blocks: [
+              { type: "prereq", items: [
+                { title: "Линейная алгебра", note: R`умножение матриц, транспонирование, обратная матрица` },
+                { title: "Задача обучения с учителем", url: "#supervised", note: R`постановка задачи` }
+              ] },
+              { type: "text", html: R`<p>Линейная регрессия предсказывает вещественный ответ как линейную комбинацию признаков: \( a(x) = \langle w, x \rangle \). Качество измеряем <span class="tip" data-tip='Mean Squared Error — средний квадрат отклонения прогноза от ответа. Сильно штрафует большие ошибки.'>среднеквадратичной ошибкой</span>; в матричной записи:</p>
+<p>$$ Q(w) = \frac{1}{\ell}\, \lVert Xw - y \rVert^2 \;\to\; \min_w . $$</p>
+<p>Функционал выпуклый и гладкий, поэтому минимум находится аналитически — это <strong>нормальное уравнение</strong> метода наименьших квадратов:</p>
+<p>$$ w^{*} = (X^{\top} X)^{-1} X^{\top} y . $$</p>` },
+              { type: "attention", html: R`<p>Формула решения требует обратимости матрицы \( X^{\top} X \). При <span class="tip" data-tip='Сильная линейная зависимость между признаками: один признак (почти) выражается через другие. Матрица \(X^{\top}X\) становится (почти) вырожденной.'>мультиколлинеарности</span> признаков она вырождена или близка к вырожденной: веса «взрываются», решение становится неустойчивым к шуму.</p>` },
+              { type: "example", title: "МНК руками", html: R`<p>По трём точкам \( (1;\,1) \), \( (2;\,2{,}5) \), \( (3;\,3{,}5) \) построим модель \( a(x) = w_1 x + w_0 \). Средние: \( \bar{x} = 2 \), \( \bar{y} \approx 2{,}33 \). Для одномерного случая решение МНК:</p>
+<p>$$ w_1 = \frac{\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\sum_i (x_i - \bar{x})^2} = \frac{2{,}5}{2} = 1{,}25, \qquad w_0 = \bar{y} - w_1 \bar{x} \approx -0{,}17 . $$</p>` },
+              { type: "selfcheck", items: [
+                { q: R`Почему функционал MSE удобен для оптимизации?`, a: R`Он выпуклый и гладкий, его градиент линеен по \(w\); при невырожденной \(X^{\top}X\) минимум единственный и выписывается аналитически.` },
+                { q: R`Что произойдёт с решением, если два признака почти линейно зависимы?`, a: R`Матрица \(X^{\top}X\) станет почти вырожденной: веса получат огромные значения с противоположными знаками, прогнозы будут неустойчивы к малым изменениям данных.` }
+              ] },
+              { type: "resources", items: [
+                { title: "Hastie, Tibshirani, Friedman. The Elements of Statistical Learning — гл. 3", url: "https://hastie.su.domains/ElemStatLearn/", note: "строгий разбор линейной регрессии и её свойств" },
+                { title: "scikit-learn: Linear Models", url: "https://scikit-learn.org/stable/modules/linear_model.html", note: "реализация и практические детали" }
+              ] }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+})()
+/*__CONSPECT_DATA_END__*/
+;
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var DATA = window.CONSPECT;
+
+  /* ---------- i18n ---------- */
+  var STRINGS = {
+    ru: {
+      contents: "Содержание",
+      prereq: "Пререквизиты",
+      prereqNone: "Пререквизитов нет",
+      attention: "Обратите внимание",
+      example: "Пример",
+      formula: "Формула",
+      explainFormula: "Объяснить формулу простыми словами",
+      selfcheck: "Вопросы для самопроверки",
+      showAnswer: "показать ответ",
+      hideAnswer: "скрыть ответ",
+      sources: "Источники",
+      back: "Назад",
+      next: "Дальше",
+      fontNames: { academic: "Академия", tech: "Техно", glass: "Стекло" },
+      textSettings: "Настройки текста",
+      font: "Шрифт",
+      size: "Размер",
+      textSize: "Размер текста",
+      colWidth: "Ширина колонки",
+      lightTheme: "Светлая тема",
+      darkTheme: "Тёмная тема",
+      close: "Закрыть",
+      collapse: "Свернуть",
+      expand: "Развернуть",
+      breadcrumbs: "Хлебные крошки",
+      adjacent: "Соседние темы",
+      imagePlaceholder: "изображение",
+      unknownBlock: "Неизвестный блок",
+      unknownBlockBody: "Блок этого типа не поддерживается шаблоном: ",
+      noTopics: "Конспект пуст: не найдено ни одной темы. Проверьте данные в window.CONSPECT.",
+      noData: "Данные конспекта не найдены или повреждены. / Conspect data is missing or malformed."
+    },
+    en: {
+      contents: "Contents",
+      prereq: "Prerequisites",
+      prereqNone: "No prerequisites",
+      attention: "Watch out",
+      example: "Example",
+      formula: "Formula",
+      explainFormula: "Explain this formula in plain words",
+      selfcheck: "Self-check questions",
+      showAnswer: "show answer",
+      hideAnswer: "hide answer",
+      sources: "Sources",
+      back: "Back",
+      next: "Next",
+      fontNames: { academic: "Academic", tech: "Tech", glass: "Glass" },
+      textSettings: "Text settings",
+      font: "Font",
+      size: "Size",
+      textSize: "Text size",
+      colWidth: "Column width",
+      lightTheme: "Light theme",
+      darkTheme: "Dark theme",
+      close: "Close",
+      collapse: "Collapse",
+      expand: "Expand",
+      breadcrumbs: "Breadcrumbs",
+      adjacent: "Adjacent topics",
+      imagePlaceholder: "image",
+      unknownBlock: "Unknown block",
+      unknownBlockBody: "This block type is not supported by the template: ",
+      noTopics: "This conspect is empty: no topics found. Check the data in window.CONSPECT.",
+      noData: "Conspect data is missing or malformed. / Данные конспекта не найдены или повреждены."
+    }
+  };
+  var lang = DATA && typeof DATA === "object" ? (DATA.lang === undefined || DATA.lang === "ru" ? "ru" : DATA.lang === "en" ? "en" : "en") : "ru";
+  var S = STRINGS[lang];
+  document.documentElement.lang = lang;
+
+  /* ---------- tiny DOM helper ---------- */
+  function el(tag, attrs, children) {
+    var node = document.createElement(tag);
+    if (attrs) {
+      for (var k in attrs) {
+        var v = attrs[k];
+        if (v == null || v === false) continue;
+        if (k === "class") node.className = v;
+        else if (k === "text") node.textContent = v;
+        else if (k === "html") node.innerHTML = v;
+        else if (k === "style") node.style.cssText = v;
+        else node.setAttribute(k, v === true ? "" : String(v));
+      }
+    }
+    if (children != null) {
+      (Array.isArray(children) ? children : [children]).forEach(function (c) {
+        if (c == null || c === false) return;
+        node.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+      });
+    }
+    return node;
+  }
+
+  /* ---------- fatal fallback (bad data) ---------- */
+  var root = document.getElementById("root");
+  function renderFatal(msg) {
+    root.innerHTML = "";
+    root.appendChild(el("main", { class: "page fatal" }, [
+      el("h1", { class: "topic-title", text: (DATA && DATA.title) || "Conspect" }),
+      el("p", { text: msg })
+    ]));
+  }
+  if (!DATA || typeof DATA !== "object") { renderFatal(STRINGS.ru.noData); return; }
+  if (!Array.isArray(DATA.topics) || DATA.topics.length === 0) { renderFatal(S.noTopics); return; }
+
+  /* ---------- MathJax helpers (queued typesetting) ---------- */
+  function mjReady(cb, tries) {
+    if (window.MathJax && window.MathJax.typesetPromise) return cb(true);
+    if ((tries || 0) > 200) return cb(false); /* give up (~30 s, CDN unreachable) */
+    setTimeout(function () { mjReady(cb, (tries || 0) + 1); }, 150);
+  }
+  var mjChain = Promise.resolve();
+  function typesetEl(target) {
+    var job = function () {
+      return new Promise(function (res) {
+        mjReady(function (ok) {
+          if (!ok || !target || !target.isConnected) return res();
+          window.MathJax.typesetPromise([target]).then(res, function () { res(); });
+        });
+      });
+    };
+    mjChain = mjChain.then(job, job);
+    return mjChain;
+  }
+
+  /* ---------- tree index ---------- */
+  function buildIndex(data) {
+    var order = [], byId = {}, parents = {};
+    (function walk(list, parent) {
+      list.forEach(function (t) {
+        if (byId[t.id]) console.warn('Conspect: duplicate topic id "' + t.id + '"');
+        byId[t.id] = t;
+        parents[t.id] = parent;
+        order.push(t.id);
+        if (t.children) walk(t.children, t);
+      });
+    })(data.topics, null);
+    return { order: order, byId: byId, parents: parents };
+  }
+  function pathTo(id) {
+    var p = [], cur = idx.byId[id];
+    while (cur) { p.unshift(cur); cur = idx.parents[cur.id]; }
+    return p;
+  }
+  var idx = buildIndex(DATA);
+
+  /* ---------- deterministic backlight palette from title ---------- */
+  function hashStr(s) { /* FNV-1a 32-bit */
+    var h = 2166136261 >>> 0;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h >>> 0;
+  }
+  function mulberry32(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function paletteFromTitle(title) {
+    var rnd = mulberry32(hashStr(String(title || "")));
+    var h1 = rnd() * 360;
+    var h2 = (h1 + 105 + rnd() * 30) % 360;
+    var h3 = (h2 + 105 + rnd() * 30) % 360;
+    return [h1, h2, h3].map(function (h) {
+      var sat = 58 + rnd() * 17;  /* 58–75 % */
+      var lig = 60 + rnd() * 10;  /* 60–70 % */
+      return "hsl(" + h.toFixed(1) + " " + sat.toFixed(1) + "% " + lig.toFixed(1) + "%)";
+    });
+  }
+
+  /* ---------- persistence ---------- */
+  var POS_KEY = "conspect-pos:" + hashStr(String(DATA.title || "")).toString(36);
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+
+  /* ---------- settings state ---------- */
+  var theme = document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  var dir = document.documentElement.dataset.dir || "academic";
+  var fontSize = 18, colWidth = 1024;
+  var fsSaved = parseInt(lsGet("conspect-fontsize"), 10);
+  if (fsSaved >= 12 && fsSaved <= 32) fontSize = fsSaved;
+  var cwSaved = parseInt(lsGet("conspect-colwidth"), 10);
+  if (cwSaved === 1440 || cwSaved === 1024 || cwSaved === 768) colWidth = cwSaved;
+  document.documentElement.style.setProperty("--fs-body", fontSize + "px");
+  document.documentElement.style.setProperty("--maxw", colWidth + "px");
+
+  function setDir(d) {
+    dir = d;
+    document.documentElement.dataset.dir = d;
+    lsSet("conspect-font", d);
+  }
+  function setFontSize(v) {
+    fontSize = v;
+    document.documentElement.style.setProperty("--fs-body", v + "px");
+    lsSet("conspect-fontsize", String(v));
+  }
+  function setColWidth(w) {
+    colWidth = w;
+    document.documentElement.style.setProperty("--maxw", w + "px");
+    lsSet("conspect-colwidth", String(w));
+  }
+
+  /* ---------- popover manager (Aa menu + crumb menus) ---------- */
+  var openPopovers = [];
+  function registerPopover(rootEl, close) {
+    var rec = { root: rootEl, close: close };
+    openPopovers.push(rec);
+    return function () {
+      var i = openPopovers.indexOf(rec);
+      if (i >= 0) openPopovers.splice(i, 1);
+    };
+  }
+  function closeAllPopovers() {
+    openPopovers.slice().forEach(function (rec) { rec.close(); });
+  }
+  document.addEventListener("mousedown", function (e) {
+    openPopovers.slice().forEach(function (rec) {
+      if (!rec.root.contains(e.target)) rec.close();
+    });
+  });
+
+  /* ---------- backlight (ricochet physics) ---------- */
+  var GLOW = 50, MOTION = true;
+  var palette = paletteFromTitle(DATA.title);
+  var backlightEl = el("div", { class: "backlight", "aria-hidden": "true", "data-motion": MOTION ? "on" : "off" });
+  backlightEl.style.opacity = String(Math.max(0, Math.min(1, GLOW / 100 * 0.6)));
+  var blobEls = ["b1", "b2", "b3"].map(function (c, i) {
+    var b = el("i", { class: "bl " + c });
+    b.style.setProperty("--c", palette[i] || palette[0]);
+    backlightEl.appendChild(b);
+    return b;
+  });
+  function startBacklight() {
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var blobs = [
+      { x: 24, y: 28, vx: -0.85, vy: -0.62 },
+      { x: 78, y: 30, vx: 0.7, vy: -0.95 },
+      { x: 52, y: 80, vx: 0.95, vy: 0.55 }
+    ];
+    if (!MOTION || reduce) {
+      blobEls.forEach(function (b) { b.style.transform = ""; });
+      return;
+    }
+    var LO = -18, HI = 118;       /* let centers ride past the edges */
+    var MAXV = 1.13, MINV = 0.47; /* calm speed band */
+    var JITTER = 1.8;             /* brownian nudge strength */
+    var last = 0;
+    function step(t) {
+      if (!last) last = t;
+      var dt = (t - last) / 1000;
+      last = t;
+      if (dt > 0.05) dt = 0.05; /* clamp after tab-away */
+      blobs.forEach(function (b, i) {
+        b.vx += (Math.random() - 0.5) * JITTER * dt;
+        b.vy += (Math.random() - 0.5) * JITTER * dt;
+        var sp = Math.hypot(b.vx, b.vy) || 0.001;
+        var cl = Math.max(MINV, Math.min(MAXV, sp));
+        b.vx *= cl / sp; b.vy *= cl / sp;
+        b.x += b.vx * dt;
+        b.y += b.vy * dt;
+        if (b.x < LO) { b.x = LO; b.vx = Math.abs(b.vx); }
+        else if (b.x > HI) { b.x = HI; b.vx = -Math.abs(b.vx); }
+        if (b.y < LO) { b.y = LO; b.vy = Math.abs(b.vy); }
+        else if (b.y > HI) { b.y = HI; b.vy = -Math.abs(b.vy); }
+        blobEls[i].style.transform = "translate(calc(" + b.x.toFixed(2) + "vw - 50%), calc(" + b.y.toFixed(2) + "vh - 50%))";
+      });
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- icon SVGs ---------- */
+  var MENU_ICON_SVG =
+    '<svg class="menu-ico" width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true">' +
+    '<rect x="3" y="4.5" width="18" height="15" rx="3" stroke="currentColor" stroke-width="1.8"/>' +
+    '<line x1="9" y1="4.5" x2="9" y2="19.5" stroke="currentColor" stroke-width="1.8"/></svg>';
+  function widthIconSvg(l, r) {
+    var y = 10;
+    return '<svg class="ts-wico" width="34" height="20" viewBox="0 0 34 20" fill="none" aria-hidden="true">' +
+      '<line x1="' + l + '" y1="3.5" x2="' + l + '" y2="16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>' +
+      '<line x1="' + r + '" y1="3.5" x2="' + r + '" y2="16.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>' +
+      '<line x1="' + (l + 3) + '" y1="' + y + '" x2="' + (r - 3) + '" y2="' + y + '" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
+      '<path d="M ' + (l + 6) + ' ' + (y - 3.2) + ' L ' + (l + 3) + ' ' + y + ' L ' + (l + 6) + ' ' + (y + 3.2) + '" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<path d="M ' + (r - 6) + ' ' + (y - 3.2) + ' L ' + (r - 3) + ' ' + y + ' L ' + (r - 6) + ' ' + (y + 3.2) + '" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '</svg>';
+  }
+
+  /* ---------- breadcrumbs ---------- */
+  var crumbsNav;
+  function makeCrumb(node, siblings, isLast) {
+    var wrap = el("span", { class: "crumb-wrap" });
+    var hasMenu = !!(siblings && siblings.length > 1);
+    var btn = el("button", { class: "crumb-btn", type: "button" }, node.title);
+    if (isLast) btn.setAttribute("aria-current", "true");
+    var caret = null;
+    if (hasMenu) {
+      caret = el("span", { class: "ms crumb-caret", "data-open": "0", text: "expand_more" });
+      btn.appendChild(caret);
+      btn.setAttribute("aria-expanded", "false");
+    }
+    wrap.appendChild(btn);
+    var menu = null, unregister = null;
+    function close() {
+      if (!menu) return;
+      menu.remove();
+      menu = null;
+      if (caret) caret.dataset.open = "0";
+      btn.setAttribute("aria-expanded", "false");
+      if (unregister) { unregister(); unregister = null; }
+    }
+    function openMenu() {
+      closeAllPopovers();
+      menu = buildCrumbMenu(node, siblings, close);
+      wrap.appendChild(menu);
+      if (caret) caret.dataset.open = "1";
+      btn.setAttribute("aria-expanded", "true");
+      unregister = registerPopover(wrap, close);
+    }
+    btn.addEventListener("click", function () {
+      if (!hasMenu) { location.hash = node.id; return; }
+      if (menu) close(); else openMenu();
+    });
+    return wrap;
+  }
+  function crumbMenuItem(t, isHere, close) {
+    var a = el("a", { href: "#" + t.id, class: "crumb-item" + (isHere ? " is-here" : "") });
+    a.appendChild(isHere ? el("span", { class: "ms crumb-tick", text: "check" }) : el("span", { class: "crumb-item-pad" }));
+    a.appendChild(el("span", { class: "crumb-item-label", text: t.title }));
+    a.addEventListener("click", close);
+    return a;
+  }
+  function buildCrumbMenu(node, siblings, close) {
+    var menu = el("div", { class: "crumb-menu", role: "menu" });
+    var curId;
+    try { curId = decodeURIComponent(location.hash.slice(1)); } catch (e) { curId = location.hash.slice(1); }
+    siblings.forEach(function (s) {
+      var kids = s.children || [];
+      var itemWrap = el("div", { class: "crumb-item-wrap" + (kids.length ? " has-sub" : "") });
+      var a = crumbMenuItem(s, s.id === node.id, close);
+      if (kids.length) a.appendChild(el("span", { class: "ms crumb-sub-caret", text: "chevron_right" }));
+      itemWrap.appendChild(a);
+      if (kids.length) {
+        var sub = el("div", { class: "crumb-submenu", role: "menu" });
+        kids.forEach(function (k) { sub.appendChild(crumbMenuItem(k, k.id === curId, close)); });
+        itemWrap.appendChild(sub);
+      }
+      menu.appendChild(itemWrap);
+    });
+    return menu;
+  }
+  function renderCrumbs(path) {
+    crumbsNav.innerHTML = "";
+    path.forEach(function (node, i) {
+      if (i > 0) crumbsNav.appendChild(el("span", { class: "ms crumb-sep", text: "chevron_right" }));
+      var siblings = i === 0 ? DATA.topics : path[i - 1].children || [];
+      crumbsNav.appendChild(makeCrumb(node, siblings, i === path.length - 1));
+    });
+  }
+
+  /* ---------- text settings (Aa) popover ---------- */
+  var FONT_OPTS = [
+    { dir: "academic", css: "'Lora', Georgia, serif" },
+    { dir: "tech", css: "'Golos Text', sans-serif" },
+    { dir: "glass", css: "'Manrope', sans-serif" }
+  ];
+  function buildTsWrap() {
+    var wrap = el("span", { class: "ts-wrap" });
+    var btn = el("button", {
+      class: "icon-btn ghost ts-btn", type: "button",
+      title: S.textSettings, "aria-label": S.textSettings, "aria-expanded": "false"
+    }, el("span", { class: "ts-aa", text: "Aa" }));
+    wrap.appendChild(btn);
+    var menu = null, unregister = null;
+    function close() {
+      if (!menu) return;
+      menu.remove();
+      menu = null;
+      btn.setAttribute("aria-expanded", "false");
+      if (unregister) { unregister(); unregister = null; }
+    }
+    function openMenu() {
+      closeAllPopovers();
+      menu = buildTsMenu();
+      wrap.appendChild(menu);
+      btn.setAttribute("aria-expanded", "true");
+      unregister = registerPopover(wrap, close);
+    }
+    btn.addEventListener("click", function () { if (menu) close(); else openMenu(); });
+    return wrap;
+  }
+  function buildTsMenu() {
+    var menu = el("div", { class: "ts-menu", role: "dialog", "aria-label": S.textSettings });
+    menu.appendChild(el("div", { class: "ts-label", text: S.font }));
+    var fonts = el("div", { class: "ts-fonts" });
+    FONT_OPTS.forEach(function (f) {
+      var fb = el("button", { class: "ts-font" + (dir === f.dir ? " is-on" : ""), type: "button" });
+      var aa = el("span", { class: "ts-font-aa", text: "Aa" });
+      aa.style.fontFamily = f.css;
+      fb.appendChild(aa);
+      fb.appendChild(el("span", { class: "ts-font-name", text: S.fontNames[f.dir] }));
+      fb.addEventListener("click", function () {
+        setDir(f.dir);
+        Array.prototype.forEach.call(fonts.querySelectorAll(".ts-font"), function (b, i) {
+          b.classList.toggle("is-on", FONT_OPTS[i].dir === dir);
+        });
+      });
+      fonts.appendChild(fb);
+    });
+    menu.appendChild(fonts);
+    var row = el("div", { class: "ts-label ts-label-row" });
+    row.appendChild(el("span", { text: S.size }));
+    var sizeVal = el("span", { class: "ts-size-val", text: fontSize + "px" });
+    row.appendChild(sizeVal);
+    menu.appendChild(row);
+    var sizeRow = el("div", { class: "ts-size" });
+    sizeRow.appendChild(el("span", { class: "ts-size-min", text: "A" }));
+    var range = el("input", { class: "ts-range", type: "range", min: "12", max: "32", step: "1", "aria-label": S.textSize });
+    range.value = String(fontSize);
+    range.addEventListener("input", function () {
+      var v = +range.value;
+      setFontSize(v);
+      sizeVal.textContent = v + "px";
+    });
+    sizeRow.appendChild(range);
+    sizeRow.appendChild(el("span", { class: "ts-size-max", text: "A" }));
+    menu.appendChild(sizeRow);
+    var wlab = el("div", { class: "ts-label", text: S.colWidth });
+    wlab.style.marginTop = "16px";
+    menu.appendChild(wlab);
+    var widths = el("div", { class: "ts-width" });
+    var WIDTH_OPTS = [{ w: 1440, l: 2, r: 32 }, { w: 1024, l: 6, r: 28 }, { w: 768, l: 9, r: 25 }];
+    WIDTH_OPTS.forEach(function (o) {
+      var wb = el("button", {
+        class: "ts-wbtn" + (colWidth === o.w ? " is-on" : ""), type: "button",
+        title: o.w + "px", "aria-label": o.w + "px"
+      });
+      wb.innerHTML = widthIconSvg(o.l, o.r);
+      wb.addEventListener("click", function () {
+        setColWidth(o.w);
+        Array.prototype.forEach.call(widths.querySelectorAll(".ts-wbtn"), function (b, i) {
+          b.classList.toggle("is-on", WIDTH_OPTS[i].w === colWidth);
+        });
+      });
+      widths.appendChild(wb);
+    });
+    menu.appendChild(widths);
+    return menu;
+  }
+
+  /* ---------- theme ---------- */
+  var themeBtn, themeIcon;
+  function updateThemeBtn() {
+    themeIcon.textContent = theme === "dark" ? "light_mode" : "dark_mode";
+    themeBtn.title = theme === "dark" ? S.lightTheme : S.darkTheme;
+  }
+  var canvasFigures = [];  // repaint callbacks for <canvas> figures; re-run on theme change
+  function toggleTheme() {
+    theme = theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = theme;
+    lsSet("conspect-theme", theme);
+    updateThemeBtn();
+    canvasFigures.forEach(function (fn) { fn(); });
+  }
+  window.addEventListener("resize", function () {
+    canvasFigures.forEach(function (fn) { fn(); });
+  });
+
+  /* ---------- drawer ---------- */
+  var drawerOpen = false;
+  var expanded = new Set();
+  var drawerBackdrop = el("div", { class: "drawer-backdrop" });
+  var drawerEl = el("aside", { class: "drawer", "aria-hidden": "true" });
+  var drawerBody = el("div", { class: "drawer-body" });
+  (function buildDrawer() {
+    var head = el("div", { class: "drawer-head" }, S.contents);
+    var closeBtn = el("button", { class: "icon-btn ghost", type: "button", title: S.close },
+      el("span", { class: "ms", text: "close" }));
+    closeBtn.addEventListener("click", closeDrawer);
+    head.appendChild(closeBtn);
+    drawerEl.appendChild(head);
+    drawerEl.appendChild(drawerBody);
+    drawerBackdrop.addEventListener("click", closeDrawer);
+  })();
+  function openDrawer() {
+    drawerOpen = true;
+    drawerBackdrop.classList.add("open");
+    drawerEl.classList.add("open");
+    drawerEl.setAttribute("aria-hidden", "false");
+  }
+  function closeDrawer() {
+    drawerOpen = false;
+    drawerBackdrop.classList.remove("open");
+    drawerEl.classList.remove("open");
+    drawerEl.setAttribute("aria-hidden", "true");
+  }
+  function buildTreeList(nodes) {
+    var ul = el("ul", { class: "tree" });
+    nodes.forEach(function (n) {
+      var li = el("li", { style: "padding:0px;margin:1px" });
+      var row = el("div", { class: "tree-row" + (n.id === topicId ? " is-current" : "") });
+      var has = !!(n.children && n.children.length > 0);
+      if (has) {
+        var isOpen = expanded.has(n.id);
+        var chev = el("button", {
+          class: "tree-chev", type: "button",
+          "data-open": isOpen ? "1" : "0",
+          "aria-label": isOpen ? S.collapse : S.expand
+        }, el("span", { class: "ms", text: "chevron_right" }));
+        chev.addEventListener("click", function () {
+          if (expanded.has(n.id)) expanded.delete(n.id); else expanded.add(n.id);
+          renderTree();
+        });
+        row.appendChild(chev);
+      } else {
+        row.appendChild(el("span", { class: "tree-chev tree-dot", style: "padding:0px;margin:0px 0px 0px 4px" }));
+      }
+      row.appendChild(el("a", { class: "tree-link", href: "#" + n.id, text: n.title }));
+      li.appendChild(row);
+      if (has && expanded.has(n.id)) li.appendChild(buildTreeList(n.children));
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  function renderTree() {
+    drawerBody.innerHTML = "";
+    drawerBody.appendChild(buildTreeList(DATA.topics));
+  }
+
+  /* ---------- content blocks ---------- */
+  function callout(cls, icon, label, body) {
+    var bodyEl = el("div", { class: "callout-body" });
+    if (typeof body === "string") bodyEl.innerHTML = body;
+    else if (body) bodyEl.appendChild(body);
+    return el("aside", { class: "callout " + cls }, [
+      el("div", { class: "callout-head" }, [
+        el("span", { class: "ms", text: icon }),
+        el("span", { text: label })
+      ]),
+      bodyEl
+    ]);
+  }
+  function renderPrereq(b) {
+    var items = b.items || [];
+    if (items.length === 0) {
+      return callout("c-prereq", "signpost", S.prereq, el("p", { class: "prereq-none", text: S.prereqNone }));
+    }
+    var ol = el("ol", { class: "prereq-list" });
+    items.forEach(function (it) {
+      var main = el("div", { class: "prereq-main" });
+      main.appendChild(it.url ?
+        el("a", { class: "prereq-link", href: it.url, html: it.title || "" }) :
+        el("span", { class: "prereq-title", html: it.title || "" }));
+      if (it.note) main.appendChild(el("span", { class: "prereq-note", html: it.note }));
+      ol.appendChild(el("li", { class: "prereq-item" }, main));
+    });
+    return callout("c-prereq", "signpost", S.prereq, ol);
+  }
+  function themeColors() {
+    var cs = getComputedStyle(document.documentElement);
+    function v(name, dflt) { return (cs.getPropertyValue(name) || dflt).trim(); }
+    return {
+      ink: v("--ink", "#222"),
+      muted: v("--ink-soft", "#666"),
+      bg: v("--bg", "#fff"),
+      accent: v("--blk-prereq", "#3b82f6")
+    };
+  }
+  function renderFigure(b) {
+    var fig = el("figure", { class: "figure" });
+    if (b.svg) {
+      fig.appendChild(el("div", { class: "fig-svg", html: b.svg }));
+    } else if (b.canvas && b.canvas.draw) {
+      var box = el("div", { class: "fig-canvas" });
+      box.style.aspectRatio = b.aspect || "16/9";
+      var canvas = el("canvas");
+      box.appendChild(canvas);
+      fig.appendChild(box);
+      var drawFn = null;
+      try { drawFn = new Function("ctx", "w", "h", "colors", b.canvas.draw); }
+      catch (e) { drawFn = null; }
+      var paint = function () {
+        if (!drawFn) return;
+        var rect = canvas.getBoundingClientRect();
+        var w = Math.max(1, Math.round(rect.width));
+        var h = Math.max(1, Math.round(rect.height));
+        var dpr = window.devicePixelRatio || 1;
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        var ctx = canvas.getContext("2d");
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, w, h);
+        try { drawFn(ctx, w, h, themeColors()); } catch (e) {}
+      };
+      canvasFigures.push(paint);
+      requestAnimationFrame(paint);  // wait for layout so the canvas has real dimensions
+    } else if (b.src) {
+      fig.appendChild(el("img", { src: b.src, alt: b.caption || "" }));
+    } else if (b.placeholder) {  // back-compat: legacy conspects only
+      var ph = el("div", { class: "fig-ph" });
+      ph.style.aspectRatio = b.aspect || "16/9";
+      String(b.placeholder).split("\n").forEach(function (line, i) {
+        if (i > 0) ph.appendChild(document.createElement("br"));
+        ph.appendChild(document.createTextNode(line));
+      });
+      fig.appendChild(ph);
+    }
+    if (b.caption) fig.appendChild(el("figcaption", { class: "fig-cap", text: b.caption }));
+    return fig;
+  }
+  function renderSelfCheck(b) {
+    var ol = el("ol", { class: "quiz-list" });
+    (b.items || []).forEach(function (it) {
+      var li = el("li");
+      li.appendChild(el("div", { class: "quiz-q", html: it.q || "" }));
+      if (it.a) {
+        var btn = el("button", { class: "quiz-btn", type: "button", "aria-expanded": "false", text: S.showAnswer });
+        var wrapA = el("div", { class: "quiz-a-wrap" },
+          el("div", { class: "quiz-a-inner" },
+            el("div", { class: "quiz-a", html: it.a })));
+        btn.addEventListener("click", function () {
+          var open = wrapA.classList.toggle("is-open");
+          btn.setAttribute("aria-expanded", String(open));
+          btn.textContent = open ? S.hideAnswer : S.showAnswer;
+          if (open) typesetEl(wrapA);
+        });
+        li.appendChild(btn);
+        li.appendChild(wrapA);
+      }
+      ol.appendChild(li);
+    });
+    return callout("c-quiz", "quiz", S.selfcheck, ol);
+  }
+  function renderResources(b) {
+    var ul = el("ul", { class: "res-list" });
+    (b.items || []).forEach(function (r) {
+      var main = el("div", { class: "res-main" });
+      main.appendChild(el("a", { class: "res-link", href: r.url, target: "_blank", rel: "noopener noreferrer", text: r.title || "" }));
+      if (r.note) main.appendChild(el("span", { class: "res-note", text: r.note }));
+      ul.appendChild(el("li", { class: "res-item", style: "margin:0px 0px 0px 2px" }, [
+        el("span", { class: "ms res-ico", text: "link" }),
+        main
+      ]));
+    });
+    return callout("c-res", "library_books", S.sources, ul);
+  }
+  /* ---------- formula explanation dialog (built once, reused) ---------- */
+  var fdlg = null;
+  function ensureFormulaDialog() {
+    if (fdlg) return fdlg;
+    var closeBtn = el("button", { class: "fdlg-close", type: "button", "aria-label": S.close, html: "&times;" });
+    var formulaWrap = el("div", { class: "fdlg-formula" });
+    var body = el("div", { class: "fdlg-body prose" });
+    var panel = el("div", {
+      class: "fdlg-panel", role: "dialog", "aria-modal": "true", "aria-label": S.explainFormula
+    }, [
+      closeBtn,
+      el("div", { class: "fdlg-head" }, [
+        el("p", { class: "fdlg-label", text: S.formula }),
+        formulaWrap
+      ]),
+      el("div", { class: "fdlg-divider" }),
+      body
+    ]);
+    var overlay = el("div", { class: "fdlg-overlay" }, panel);
+    document.body.appendChild(overlay);
+    fdlg = { overlay: overlay, panel: panel, formulaWrap: formulaWrap, body: body, closeBtn: closeBtn, unregister: null, prevFocus: null };
+    closeBtn.addEventListener("click", closeFormulaDialog);
+    return fdlg;
+  }
+  function closeFormulaDialog() {
+    if (!fdlg) return;
+    fdlg.overlay.classList.remove("is-open");
+    document.body.classList.remove("fdlg-lock");
+    if (fdlg.unregister) { fdlg.unregister(); fdlg.unregister = null; }
+    if (fdlg.prevFocus && fdlg.prevFocus.focus) {
+      try { fdlg.prevFocus.focus({ preventScroll: true }); } catch (e) { fdlg.prevFocus.focus(); }
+      fdlg.prevFocus = null;
+    }
+  }
+  function openFormulaDialog(tex, explainHtml) {
+    closeAllPopovers();
+    var d = ensureFormulaDialog();
+    d.prevFocus = document.activeElement;
+    d.formulaWrap.innerHTML = "$$ " + (tex || "") + " $$";
+    d.body.innerHTML = explainHtml || "";
+    d.overlay.classList.add("is-open");
+    document.body.classList.add("fdlg-lock");
+    if (d.unregister) d.unregister();
+    d.unregister = registerPopover(d.panel, closeFormulaDialog);
+    try { d.closeBtn.focus({ preventScroll: true }); } catch (e) { d.closeBtn.focus(); }
+    typesetEl(d.formulaWrap);
+    typesetEl(d.body);
+  }
+
+  function renderFormula(b) {
+    var math = el("div", { class: "formula-math", html: "$$ " + (b.tex || "") + " $$" });
+    var qbtn = el("button", {
+      class: "formula-q", type: "button", "aria-label": S.explainFormula, text: "?"
+    });
+    qbtn.addEventListener("click", function () { openFormulaDialog(b.tex, b.explain); });
+    var block = el("div", { class: "formula-block" }, [
+      el("div", { class: "formula-row" }, [math, qbtn])
+    ]);
+    if (b.caption) block.appendChild(el("div", { class: "formula-cap", text: b.caption }));
+    return block;
+  }
+
+  function renderTable(b) {
+    var headers = Array.isArray(b.headers) ? b.headers : [];
+    var rows = Array.isArray(b.rows) ? b.rows : [];
+    var align = Array.isArray(b.align) ? b.align : [];
+    function alignClass(i) {
+      return align[i] === "right" ? "a-right" : align[i] === "center" ? "a-center" : null;
+    }
+    var thead = el("thead", null, el("tr", null, headers.map(function (h, i) {
+      return el("th", { scope: "col", class: alignClass(i), html: h });
+    })));
+    var tbody = el("tbody", null, rows.map(function (row) {
+      return el("tr", null, (Array.isArray(row) ? row : []).map(function (cell, i) {
+        if (i === 0 && b.rowHeader)
+          return el("th", { scope: "row", class: alignClass(i), html: cell });
+        return el("td", { class: alignClass(i), html: cell });
+      }));
+    }));
+    var fig = el("figure", { class: "tbl-fig" }, [
+      el("div", { class: "tbl-wrap" }, el("table", { class: "tbl" }, [thead, tbody]))
+    ]);
+    if (b.caption) fig.appendChild(el("figcaption", { class: "tbl-cap", text: b.caption }));
+    return fig;
+  }
+
+  function renderBlock(b) {
+    if (!b || typeof b !== "object") return null;
+    switch (b.type) {
+      case "text":
+        return el("div", { class: "prose", html: b.html || "" });
+      case "prereq":
+        return renderPrereq(b);
+      case "attention":
+        return callout("c-attn", "priority_high", S.attention, b.html || "");
+      case "example":
+        return callout("c-example", "calculate", b.title ? S.example + " — " + b.title : S.example, b.html || "");
+      case "image":
+        return renderFigure(b);
+      case "formula":
+        return renderFormula(b);
+      case "selfcheck":
+        return renderSelfCheck(b);
+      case "table":
+        return renderTable(b);
+      case "resources":
+        return renderResources(b);
+      default:
+        console.warn('Conspect: unknown block type "' + b.type + '"', b);
+        return callout("c-attn", "error", S.unknownBlock,
+          el("p", { text: S.unknownBlockBody + '"' + b.type + '"' }));
+    }
+  }
+
+  /* ---------- bottom navigation ---------- */
+  function buildBottomNav(prev, next) {
+    var nav = el("nav", { class: "bottomnav", "aria-label": S.adjacent });
+    nav.appendChild(prev ?
+      el("a", { class: "bn bn-prev", href: "#" + prev.id }, [
+        el("span", { class: "bn-label" }, [el("span", { class: "ms", text: "arrow_back" }), S.back]),
+        el("span", { class: "bn-title", text: prev.title })
+      ]) : el("span"));
+    nav.appendChild(next ?
+      el("a", { class: "bn bn-next", href: "#" + next.id }, [
+        el("span", { class: "bn-label" }, [S.next, el("span", { class: "ms", text: "arrow_forward" })]),
+        el("span", { class: "bn-title", text: next.title })
+      ]) : el("span"));
+    return nav;
+  }
+
+  /* ---------- tooltips (delegated; hover + tap) ---------- */
+  var tipEl = null, tipSrc = null, tipRect = null, tipHideT = null;
+  function keepTip() { clearTimeout(tipHideT); }
+  function scheduleHideTip() {
+    clearTimeout(tipHideT);
+    tipHideT = setTimeout(hideTip, 260);
+  }
+  function hideTip() {
+    clearTimeout(tipHideT);
+    if (tipEl) { tipEl.remove(); tipEl = null; tipSrc = null; }
+  }
+  function placeTip() {
+    if (!tipEl || !tipRect) return;
+    var w = tipEl.offsetWidth, h = tipEl.offsetHeight, vw = window.innerWidth;
+    var left = Math.min(Math.max(8, tipRect.cx - w / 2), vw - w - 8);
+    var placement = "top";
+    var top = tipRect.top - h - 10;
+    if (top < 8) { top = tipRect.bottom + 10; placement = "bottom"; }
+    tipEl.dataset.placement = placement;
+    tipEl.style.left = left + "px";
+    tipEl.style.top = top + "px";
+  }
+  function showTipFor(srcEl) {
+    clearTimeout(tipHideT);
+    if (tipSrc === srcEl && tipEl) return;
+    hideTip();
+    tipSrc = srcEl;
+    var r = srcEl.getBoundingClientRect();
+    tipRect = { top: r.top, bottom: r.bottom, cx: r.left + r.width / 2 };
+    tipEl = el("div", { class: "tip-pop", "data-placement": "top" });
+    tipEl.style.left = "-9999px";
+    tipEl.style.top = "-9999px";
+    tipEl.innerHTML = srcEl.getAttribute("data-tip") || "";
+    tipEl.addEventListener("mouseenter", keepTip);
+    tipEl.addEventListener("mouseleave", scheduleHideTip);
+    document.body.appendChild(tipEl);
+    placeTip();
+    var mine = tipEl;
+    setTimeout(function () { if (tipEl === mine) mine.classList.add("is-ready"); }, 0);
+    typesetEl(mine).then(function () {
+      if (tipEl === mine && mine.isConnected) placeTip();
+    });
+  }
+  document.addEventListener("mouseover", function (e) {
+    var t = e.target.closest && e.target.closest(".tip");
+    if (t) showTipFor(t);
+    else if (e.target.closest && e.target.closest(".tip-pop")) clearTimeout(tipHideT);
+  });
+  document.addEventListener("mouseout", function (e) {
+    if (e.target.closest && (e.target.closest(".tip") || e.target.closest(".tip-pop"))) scheduleHideTip();
+  });
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest(".tip");
+    if (t) showTipFor(t);
+    else if (!(e.target.closest && e.target.closest(".tip-pop"))) hideTip();
+  });
+  window.addEventListener("scroll", hideTip, true);
+
+  /* ---------- global Escape ---------- */
+  window.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") return;
+    hideTip();
+    closeAllPopovers();
+    if (drawerOpen) closeDrawer();
+  });
+
+  /* ---------- topic view ---------- */
+  var mainEl;
+  function renderTopicView(topic, path) {
+    var kicker = path.length > 1 ? path[path.length - 2].title : DATA.title;
+    var pos = idx.order.indexOf(topic.id);
+    var prev = pos > 0 ? idx.byId[idx.order[pos - 1]] : null;
+    var next = pos < idx.order.length - 1 ? idx.byId[idx.order[pos + 1]] : null;
+    mainEl.innerHTML = "";
+    var article = el("article", { class: "topic" });
+    article.appendChild(el("p", { class: "topic-kicker", text: kicker }));
+    article.appendChild(el("h1", { class: "topic-title", text: topic.title }));
+    (topic.blocks || []).forEach(function (b) {
+      var node = renderBlock(b);
+      if (node) article.appendChild(node);
+    });
+    mainEl.appendChild(article);
+    mainEl.appendChild(buildBottomNav(prev, next));
+    return article;
+  }
+
+  /* ---------- routing + reading position ---------- */
+  var topicId = null;
+  function setTopic(id) {
+    topicId = id;
+    var topic = idx.byId[id];
+    var path = pathTo(id);
+    path.forEach(function (n) { expanded.add(n.id); });
+    document.title = topic.title + " — " + DATA.title;
+    hideTip();
+    closeAllPopovers();
+    renderCrumbs(path);
+    var article = renderTopicView(topic, path);
+    renderTree();
+    lsSet(POS_KEY, id);
+    window.scrollTo(0, 0);
+    typesetEl(article);
+  }
+  function resolveInitialTopic() {
+    var h;
+    try { h = decodeURIComponent(location.hash.slice(1)); } catch (e) { h = location.hash.slice(1); }
+    if (idx.byId[h]) return h;
+    var saved = lsGet(POS_KEY);
+    if (saved && idx.byId[saved]) return saved;
+    return idx.order[0];
+  }
+  window.addEventListener("hashchange", function () {
+    var h;
+    try { h = decodeURIComponent(location.hash.slice(1)); } catch (e) { h = location.hash.slice(1); }
+    if (idx.byId[h] && h !== topicId) setTopic(h);
+  });
+
+  /* ---------- assemble & boot ---------- */
+  var header = el("header", { class: "header" });
+  (function buildHeader() {
+    var inner = el("div", { class: "header-inner" });
+    var top = el("div", { class: "header-top" });
+    top.appendChild(el("h1", { class: "site-title", text: DATA.title }));
+    crumbsNav = el("nav", { class: "crumbs", "aria-label": S.breadcrumbs });
+    top.appendChild(crumbsNav);
+    var actions = el("div", { class: "header-actions" });
+    themeBtn = el("button", { class: "icon-btn ghost", type: "button" });
+    themeIcon = el("span", { class: "ms" });
+    themeBtn.appendChild(themeIcon);
+    themeBtn.addEventListener("click", toggleTheme);
+    updateThemeBtn();
+    actions.appendChild(themeBtn);
+    actions.appendChild(buildTsWrap());
+    top.appendChild(actions);
+    inner.appendChild(top);
+    var menuRow = el("div", { class: "menu-row" });
+    var menuBtn = el("button", { class: "menu-btn", type: "button", title: S.contents, "aria-label": S.contents });
+    menuBtn.innerHTML = MENU_ICON_SVG;
+    menuBtn.addEventListener("click", openDrawer);
+    menuRow.appendChild(menuBtn);
+    inner.appendChild(menuRow);
+    header.appendChild(inner);
+  })();
+
+  mainEl = el("main", { class: "page" });
+  root.appendChild(backlightEl);
+  root.appendChild(header);
+  root.appendChild(mainEl);
+  root.appendChild(drawerBackdrop);
+  root.appendChild(drawerEl);
+
+  startBacklight();
+  setTopic(resolveInitialTopic());
+})();
+</script>
+</body>
+</html>
