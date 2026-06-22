@@ -4,7 +4,7 @@ description: Use when the user wants a clear, self-contained explainer of a sing
 license: MIT
 metadata:
   author: Ionnia
-  version: "0.2.0"
+  version: "1.0.0"
 ---
 
 # Paper Brief
@@ -69,12 +69,13 @@ A paper brief should show the paper's real figures wherever one carries the idea
 
 ### 7. Render the HTML
 
-**Read [references/format.md](references/format.md) before producing any data** — it defines the exact `window.CONSPECT` schema, block types, math/tooltip conventions, the injection markers, and the build command. Then:
+**Read [references/format.md](references/format.md) before producing any data** — it defines the block schema, math/tooltip conventions, and the full `scripts/conspect.js` command reference. You do **not** hand-write `data.js`; you drive the toolkit, which builds and validates a durable `conspect.json` store one node at a time. All HTML/LaTeX/SVG content is passed via stdin or `--*-in <file>` — never typed into JSON — so escaping bugs cannot occur. Then:
 
-1. Build the data object and write it to a temp file (e.g. `data.js`) as a single JS expression.
-2. Run `node scripts/build.js data.js <brief-name> [output-dir]`. It copies the template, splices the data, validates the structure, and writes `<brief-name>.html` only if validation passes.
-3. If the build reports a validation error, fix `data.js` and re-run.
-4. Deliver the file where the user expects output.
+1. **Create the store:** `node scripts/conspect.js init --title "…" [--lang en] [--store conspect.json]`. (Pass `--store <path>` on every command, or run from the output directory to use the default `conspect.json`.)
+2. **Add topics** (in your reorganized teaching order): `add-topic --title "…" [--id <id>] [--parent <id>] [--pos end|<n>|before:<id>|after:<id>]`. paper-brief topics have **no prereq block** — they start empty.
+3. **Add blocks** (each `--topic <id>`, content via stdin or `--in <file>`): `add-text`, `add-attention`; `add-formula --tex '…' --explain <stdin> [--caption]`; `add-image` (one of `--svg <file>` / `--canvas <file>` / `--src <file>` / `--raster <img>`, plus `--caption`, `--aspect`) — prefer the paper's real figures; `add-table --headers … [--align …] [--row-header] [--caption]` then `add-table-row <block-id> --cell … --cell …`; `add-resources` then `add-resource-item <block-id> --title … --url …`.
+4. **Inspect / edit surgically** by id: `tree`, `show <id>`, `edit-topic`, `move-topic`, `remove-topic`, `edit-block`, `move-block`, `remove-block`.
+5. **Render:** `node scripts/conspect.js build <brief-name> [output-dir] [--store …]`. It validates the whole store (unique ids, no removed block types, resolvable internal links, figures present) and writes `<brief-name>.html` only if validation passes; on any error it writes nothing and exits non-zero — fix and re-run.
 
 `templates/template.html` ships with a built-in sample brief, so it can be opened directly for a design preview before building.
 
@@ -84,14 +85,14 @@ The spliced `<brief-name>.html` is fully self-contained — figures are inlined,
 
 - the downloaded `paper.pdf` (unless it was the user's own input file);
 - extracted/intermediate images (the `figs/` directory, any source PNGs fed to `image-to-inline.py`);
-- the data expression temp file (`data.js`);
+- the store file (`conspect.json` or whatever you passed to `--store`);
 - any other scratch files created during the build.
 
 Do **not** touch the user's own input materials or anything in the skill directory itself.
 
 ## Hard rules
 
-- Always read `references/format.md` before writing any brief data.
+- Always read `references/format.md` before writing any brief data; author via `scripts/conspect.js` (a durable `conspect.json` store), never by hand-writing `data.js`. Pass all HTML/LaTeX/SVG content through stdin or `--*-in <file>` — never embed it as a JSON/JS literal.
 - The paper is the source of truth: explain it faithfully, don't audit it. Where you fill a gap from outside the paper or the paper is unclear, flag it rather than presenting a guess as the paper's claim.
 - For a PDF URL, always `curl` it to a local file and read that — never read a PDF through a URL.
 - Always plan the full outline (step 3) before writing topic content; reorganize for clarity, don't mirror the paper's section order.
@@ -99,8 +100,8 @@ Do **not** touch the user's own input materials or anything in the skill directo
 - Prefer the paper's real figures (extracted via `scripts/pdf-figures.py`, inlined via `scripts/image-to-inline.py`); redraw as SVG only to simplify or when the paper has none. Every `image` block carries a real figure (`svg`/`canvas`/`src`) — never the legacy text `placeholder`.
 - Formulas are always LaTeX via MathJax — never unicode pseudo-math (`x²`, `→`, `∑`) and never images of formulas. Use a `formula` block only for a load-bearing formula a reader would stumble on.
 - Brief language matches the user's paper/request; template UI language is set via the `lang` field.
-- The deliverable is `<brief-name>.html` built by `scripts/build.js` from the bundled `templates/template.html` — never hand-write the HTML shell, never modify `templates/template.html` itself.
-- After the `.html` is validated and delivered, delete all temporary files (downloaded PDF, extracted figures, data expression, scratch files). Never remove the user's input materials or the skill's own files.
+- The deliverable is `<brief-name>.html` built by `node scripts/conspect.js build` from the bundled `templates/template.html` — never hand-write the HTML shell, never modify `templates/template.html` itself.
+- After the `.html` is validated and delivered, delete all temporary files (downloaded PDF, extracted figures, the `conspect.json` store, scratch files). Never remove the user's input materials or the skill's own files.
 
 ## References
 

@@ -101,7 +101,7 @@ The question number (`1.`, `2.`, …) is prepended automatically via a CSS count
   caption: /* optional plain text */ }
 ```
 
-- **Cells are html** — same subset as a `text` block (inline math `\( … \)`, tooltips, `<code>`, `<strong>`/`<em>`, links). Author each cell with `` String.raw`…` ``. Keep cells compact — a large display formula belongs in a `formula` block, not a cell.
+- **Cells are html** — same subset as a `text` block (inline math `\( … \)`, tooltips, `<code>`, `<strong>`/`<em>`, links). Pass each cell as a `--cell` value to `add-table-row` (raw literal, no escaping). Keep cells compact — a large display formula belongs in a `formula` block, not a cell.
 - `rows` are **positional arrays**; every row must have exactly `headers.length` cells (the build fails otherwise).
 - `align` (optional) sets per-column alignment; a right-aligned column also gets tabular figures. `rowHeader: true` renders each row's first cell as a `<th scope="row">` with header emphasis — use it for comparison tables where every row is a labeled item.
 - `caption` is plain text, shown under the table like a figure caption. Wide tables scroll horizontally on narrow screens automatically — you never author overflow markup.

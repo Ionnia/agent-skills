@@ -1,9 +1,9 @@
 # Conspect data format and rendering
 
-The conspect is rendered by the bundled template at `templates/template.html`. You never edit the template's markup or scripts — the build script copies it and replaces one data expression. Pipeline:
+The conspect is rendered by the bundled template at `templates/template.html`. You never edit the template's markup or scripts, and you never hand-write the data. Pipeline:
 
-1. Author the data as a single JS expression evaluating to the `window.CONSPECT` object (schema below), and write it to a temp file (e.g. `data.js`).
-2. Run `node scripts/build.js <data.js> <conspect-name> [output-dir]`. The script copies the template, splices the data between the injection markers, validates the structure, and writes `<conspect-name>.html` only if validation passes.
+1. Build a durable store (`conspect.json`) with the `scripts/conspect.js` toolkit — one command per topic/block (see [Authoring via the toolkit](#authoring-via-the-toolkit) below for the schema each command produces and the full command reference).
+2. Run `node scripts/conspect.js build <conspect-name> [output-dir]`. It serializes the store into the `window.CONSPECT` object (schema below), splices it between the injection markers in a copy of the template, validates the structure, and writes `<conspect-name>.html` only if validation passes.
 3. Open the file in a browser to verify.
 
 `templates/template.html` contains a built-in sample conspect, so you can open it as-is to preview the design before building anything.
@@ -77,7 +77,7 @@ Choose the mechanism by the decision rule in [diagrams.md](diagrams.md): **SVG**
   caption: /* optional plain text */ }
 ```
 
-- **Cells are html** — same subset as a `text` block (inline math `\( … \)`, tooltips, `<code>`, `<strong>`/`<em>`, links). Author each cell with `` String.raw`…` ``. Keep cells compact — a large display formula belongs in a `formula` block, not a cell.
+- **Cells are html** — same subset as a `text` block (inline math `\( … \)`, tooltips, `<code>`, `<strong>`/`<em>`, links). Pass each cell as a `--cell` value to `add-table-row` (raw literal, no escaping). Keep cells compact — a large display formula belongs in a `formula` block, not a cell.
 - `rows` are **positional arrays**; every row must have exactly `headers.length` cells (the build fails otherwise).
 - `align` (optional) sets per-column alignment; a right-aligned column also gets tabular figures. `rowHeader: true` renders each row's first cell as a `<th scope="row">` with header emphasis — use it for comparison tables where every row is a labeled item.
 - `caption` is plain text, shown under the table like a figure caption. Wide tables scroll horizontally on narrow screens automatically — you never author overflow markup.
@@ -99,50 +99,40 @@ Allowed tags in *html*-typed fields: `p`, `ul`, `ol`, `li`, `strong`, `em`, `a`,
 
 > Raw `<table>` markup inside a `text` block still works and inherits the same styling, but for real tabular data prefer the dedicated **`table` block** (above) — it validates row/column counts, supports alignment and row headers, and adds the responsive scroll container for you.
 
-## Authoring the data expression
+## Authoring via the toolkit
 
-The data is **one JS expression** (what goes between the markers — see below). Two legal styles:
+You never hand-write the data. `scripts/conspect.js` builds and validates a durable JSON store (`conspect.json` by default; override with `--store <path>` on every command) one node at a time, then renders the HTML from it. The store mirrors the schema above, plus an internal `_id` on every block (e.g. `b3`) used for addressing; `_id` is stripped before the data is spliced into the template, so it never reaches the HTML.
 
-### Recommended: object literal with `String.raw`
+**The escaping rule that makes this safe:** every HTML / LaTeX / SVG / canvas-source field is passed as a **raw literal via stdin or a `--*-in <file>` flag** — never typed into JSON. The tool stores it through `JSON.stringify`, which escapes backslashes correctly. So `\frac`, `\lim`, `\nabla` are written exactly as in TeX and the `String.raw`/JSON-backslash bug class **cannot occur**. Small scalars (`--id`, `--title`, `--caption`, `--tex`, `--url`, `--aspect`, `--lang`, `--align`) are ordinary flags; wrap shell-hostile values in single quotes.
 
-Write a plain JS object literal and wrap **every html field** in `` String.raw`...` ``. Inside `String.raw`, backslashes are literal, so LaTeX needs no escaping at all — `\frac`, `\lim`, `\nabla` are written exactly as in TeX.
+**Multi-row/-item blocks are built one entry at a time** (`table`, `resources`): a create command makes the block, then repeated row/item commands add each entry — so each cell still passes as a raw literal.
 
-Two characters to avoid inside `String.raw` strings (they still have meaning in template literals):
+**Two validation tiers.** Each mutating command validates the affected block in isolation (e.g. a `formula` needs non-empty `tex`+`explain`; a `table` row must match the header count; `prereq`/`example`/`selfcheck` are rejected) and refuses the change with a precise error. `build`/`validate` then run the full pass over the whole store.
 
-- backtick — would terminate the string; write `&#96;` in HTML content instead;
-- `${` — would start interpolation; write `&#36;{` instead. (A lone `$`, including `$$ ... $$` math delimiters, is fine.)
+### Command reference
 
-### Legal but dangerous: pure JSON
+`node scripts/conspect.js <command> [flags]` — all commands accept `--store <path>`.
 
-Pure JSON is also a valid JS expression — but then **every LaTeX backslash must be doubled** (`\\frac`, `\\lim`).
+| Command | Purpose |
+|---|---|
+| `init --title <t> [--lang ru\|en]` | Create the store. |
+| `set-meta [--title <t>] [--lang …]` | Change title / lang. |
+| `tree` | Print structure only (ids, titles, block types + block ids). |
+| `show <topic-id\|block-id>` | Print one node's full content. |
+| `validate` | Full structural check without building. |
+| `build <name> [outdir]` | Validate + render `<name>.html`. |
+| `add-topic --title <t> [--id] [--parent <id>] [--pos end\|<n>\|before:<id>\|after:<id>]` | Add a topic/subtopic (paper-brief topics start empty — no prereq). |
+| `edit-topic <id> [--title] [--id <new>]` | Rename / re-id (rewrites `#id` links). |
+| `move-topic <id> [--parent <id>] [--pos …]` | Reparent / reorder. |
+| `remove-topic <id>` | Delete topic + subtree (reports dangling links). |
+| `add-text` · `add-attention` `--topic <id>` | Prose blocks; html via stdin/`--in`. |
+| `add-formula --topic <id> --tex '…' [--explain-in <f>\|stdin] [--caption]` | Formula block. |
+| `add-image --topic <id> (--svg <f>\|--canvas <f>\|--src <f>\|--raster <img>) [--caption] [--aspect]` | Figure block. |
+| `add-table --topic <id> --headers <h> … [--align …] [--row-header] [--caption]` · `add-table-row <block-id> --cell … --cell …` | Table rows. |
+| `add-resources --topic <id>` · `add-resource-item <block-id> --title --url [--note]` | Further-reading list. |
+| `add-block --type <t> --topic <id>` · `edit-block <block-id>` · `move-block <block-id> --topic <id>` · `remove-block <block-id>` | Generic block ops (escape hatch). |
 
-> **WARNING — the #1 authoring bug.** `\f`, `\n`, `\t`, `\b`, `\r` are *valid JSON escapes*. If you write `"\frac{a}{b}"`, `"\nabla"`, `"\theta"`, `"\beta"`, `"\rho"` with single backslashes, JSON parses them **without any error** into form-feed + `rac{a}{b}`, newline + `abla`, tab + `heta`, backspace + `eta`, carriage-return + `ho`. The file renders with silently broken formulas and no diagnostic. If you author in JSON, double every single backslash and re-read every formula afterwards. Better: use the `String.raw` route and the problem cannot occur.
-
-## Building the file
-
-`templates/template.html` contains, exactly once:
-
-```
-window.CONSPECT =
-/*__CONSPECT_DATA_START__*/
-{ ...built-in sample... }
-/*__CONSPECT_DATA_END__*/
-;
-```
-
-`scripts/build.js` replaces everything strictly **between** the two marker comments with your data expression, preserving both markers (so the file can be rebuilt later), then validates the result. Do not add a trailing semicolon to the expression — the `;` after the end marker already terminates the statement.
-
-```bash
-node scripts/build.js <data.js> <conspect-name> [output-dir]
-```
-
-- `<data.js>` — a file containing **only** the data expression (the object literal, no `window.CONSPECT =`, no trailing semicolon).
-- `<conspect-name>` — the output filename stem; the script writes `<conspect-name>.html`. Independent of the data's `title`.
-- `[output-dir]` — optional; writes there if given, else the current directory.
-
-The script validates structure before writing: non-empty `title`, valid `lang`, ≥ 1 topic, each topic's `blocks` a non-empty array, unique kebab-case ids, only retained block types (a `prereq`, `example`, or `selfcheck` block is rejected with a clear error), `formula` blocks with non-empty `tex` + `explain`, valid `table` shape, and a control-character scan that catches the JSON-backslash bug above (reported with the exact field path). **On any validation failure it prints the error and writes no file (non-zero exit)** — so a broken build never produces an HTML file. An `image` block with no `svg`/`canvas`/`src` prints a non-fatal `WARN` but still builds. On success it prints `OK: "<title>" — N topics → <path>`.
-
-If validation fails, fix `data.js` and re-run — the build is idempotent and repeatable.
+`build` validates the whole store before writing: non-empty `title`, valid `lang`, ≥ 1 topic, each topic's `blocks` a non-empty array, unique kebab-case ids, only retained block types (`prereq`/`example`/`selfcheck` rejected with a clear error), `formula` blocks with non-empty `tex`+`explain`, valid `table` shape, resolvable internal `#id` links, and a control-character scan. **On any failure it prints the error and writes no file (non-zero exit).** An `image` block with no `svg`/`canvas`/`src` prints a non-fatal `WARN` but still builds. On success it prints `OK: "<title>" — N topics → <path>`. The build is idempotent and repeatable.
 
 ## Template behaviors worth knowing
 
@@ -155,7 +145,7 @@ If validation fails, fix `data.js` and re-run — the build is idempotent and re
 
 ## Complete example
 
-Two topics, every retained block type, real LaTeX, `String.raw` form. This whole object literal is what goes between the markers.
+Two topics, every retained block type, real LaTeX. This is the **resulting data shape** the toolkit assembles in `conspect.json` and splices between the markers (shown with `String.raw` literals for readability) — you don't type it by hand; you produce it with `conspect.js` commands, which store each field as plain JSON.
 
 ```js
 {
