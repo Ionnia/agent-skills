@@ -747,7 +747,14 @@ html[data-dir="glass"][data-theme="dark"] .callout {
   font-size: 13px;
   line-height: 1.5;
 }
-.figure img { display: block; width: 100%; border-radius: 28px; }
+.figure img {
+  display: block;
+  width: 100%;
+  border-radius: 28px;
+  padding: 12px;
+  background: var(--bg);
+  box-sizing: border-box;
+}
 .fig-svg { display: block; }
 .fig-svg svg { display: block; width: 100%; height: auto; border-radius: 28px; color: var(--ink); }
 .fig-canvas { display: block; width: 100%; border-radius: 28px; overflow: hidden; }
