@@ -4,7 +4,7 @@ description: Use when writing study notes (a conspect / конспект) on a t
 license: MIT
 metadata:
   author: Ionnia
-  version: "1.1.1"
+  version: "1.1.2"
 ---
 
 # Write Conspect
@@ -66,15 +66,19 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 
 1. **Create the store:** `node scripts/conspect.js init --title "…" [--lang en] [--store conspect.json]`. (Pass `--store <path>` on every command, or run from the output directory to use the default `conspect.json`.)
 2. **Add topics in pedagogical order:** `add-topic --title "…" [--id <id>] [--parent <id>] [--pos end|<n>|before:<id>|after:<id>]`. Each topic is created with its mandatory first `prereq` block; fill it with `add-prereq-item --topic <id> --title "…" [--url "#earlier-id"|https://…] [--note "…"]`.
-3. **Add blocks** (each `--topic <id>`, content via stdin or `--in <file>`): `add-text`, `add-attention`, `add-example [--title …]`; `add-formula --tex '…' --explain <stdin> [--caption …]`; `add-image` (one of `--svg <file>` / `--canvas <file>` / `--src <file>` / `--raster <img>`, plus `--caption`, `--aspect`) — generate a real figure per [references/diagrams.md](references/diagrams.md); `add-selfcheck` then `add-selfcheck-item <block-id>` (q via stdin, `--a <answer>`); `add-table --headers … [--align …] [--row-header] [--caption …]` then `add-table-row <block-id> --cell … --cell …`; `add-resources` then `add-resource-item <block-id> --title … --url …`.
+3. **Add blocks** (each `--topic <id>`, content via stdin or `--in <file>`; every block command also takes `[--pos end|<n>|before:<id>|after:<id>]`): `add-text`, `add-attention`, `add-example [--title …]`; `add-formula --tex '…' --explain <stdin> [--caption …]`; `add-image` (one of `--svg <file>` / `--canvas <file>` / `--src <file>` / `--raster <img>`, plus `--caption`, `--aspect`) — generate a real figure per [references/diagrams.md](references/diagrams.md); `add-selfcheck [--id <id>]` then `add-selfcheck-item <block-id>|--last` (q via stdin, `--a <answer>`); `add-table --headers A B C [--id <id>] [--align …] [--row-header] [--caption …]` then `add-table-row <block-id>|--last --cell x y z`; `add-resources [--id <id>]` then `add-resource-item <block-id>|--last --title … --url …`. Multi-value flags take space-separated values; pass `--id` (or use `--last`) to populate a table/selfcheck/resources block in the same batch.
 4. **Inspect cheaply** without re-reading everything: `tree` (structure + block ids), `show <topic-id|block-id>` (one node). Edit surgically by id: `edit-topic`, `move-topic`, `remove-topic`, `edit-block`, `move-block`, `remove-block`.
 5. **Render:** `node scripts/conspect.js build <conspect-name> [output-dir] [--store …]`. It validates the whole store (unique ids, prereq-first, resolvable internal links, figures present) and writes `<conspect-name>.html` only if validation passes; on any error it writes nothing and exits non-zero — fix and re-run.
 
 `templates/template.html` ships with a built-in sample conspect, so it can be opened directly for a design preview before building.
 
-### 7. Clean up
+### 7. Review the built conspect
 
-The spliced `<conspect-name>.html` is fully self-contained — figures are inlined, no assets are referenced. So once it is validated and delivered, **delete every temporary file the build produced**, leaving the `.html` as the only artifact in the output location. Remove:
+**While `conspect.json` still exists**, open and skim the rendered HTML for typos, wrong terms, and broken/empty figures. Fix anything you find through the toolkit — `edit-block` / `edit-topic` then rebuild — **never by hand-editing the HTML** (its content is JSON-escaped and easy to corrupt). Run any self-check/QA pass here, before cleanup, so corrections still go through the store.
+
+### 8. Clean up
+
+The spliced `<conspect-name>.html` is fully self-contained — figures are inlined, no assets are referenced. So once it is validated, reviewed (step 7), and delivered, **delete every temporary file the build produced**, leaving the `.html` as the only artifact in the output location. Remove:
 
 - the store file (`conspect.json` or whatever you passed to `--store`);
 - any source/intermediate images fed to `scripts/image-to-inline.py` (the WebP is already inlined into the HTML);
@@ -95,7 +99,7 @@ Do **not** touch the user's own input materials or anything in the skill directo
 - `selfcheck` and `attention` blocks only where they earn their place; an attention block with no real pitfall is noise.
 - Conspect language matches the user's materials/request; template UI language is set via the `lang` field.
 - The deliverable is `<conspect-name>.html` built by `node scripts/conspect.js build` from the bundled `templates/template.html` — never hand-write the HTML shell, never modify `templates/template.html` itself.
-- After the `.html` is validated and delivered, delete all temporary build files (the `conspect.json` store, intermediate/source images, scratch files). The `<conspect-name>.html` must be the only artifact left in the output location; never remove the user's input materials or the skill's own files.
+- Review the built conspect **before** cleanup (step 7): fix any issue via the toolkit + rebuild, never by hand-editing the HTML. Only after review delete all temporary build files (the `conspect.json` store, intermediate/source images, scratch files) — deleting the store before review forces hand-editing escaped HTML. The `<conspect-name>.html` must be the only artifact left in the output location; never remove the user's input materials or the skill's own files.
 
 ## References
 
