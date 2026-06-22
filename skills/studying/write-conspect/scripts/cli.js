@@ -1,6 +1,10 @@
 "use strict";
 const store = require("./store.js");
 
+// Flags that take many values: space-separated (--headers A B C) or repeated
+// (--headers A --headers B). A value beginning with "--" must use --flag=value.
+const VARIADIC = new Set(["headers", "align", "cell"]);
+
 function parseArgs(argv) {
   const _ = [], flags = {};
   for (let i = 0; i < argv.length; i++) {
@@ -9,9 +13,13 @@ function parseArgs(argv) {
       let key = a.slice(2), val = true;
       const eq = key.indexOf("=");
       if (eq >= 0) { val = key.slice(eq + 1); key = key.slice(0, eq); }
-      else if (i + 1 < argv.length && !argv[i + 1].startsWith("--")) { val = argv[++i]; }
+      else if (VARIADIC.has(key)) {
+        const vals = [];
+        while (i + 1 < argv.length && !argv[i + 1].startsWith("--")) vals.push(argv[++i]);
+        val = vals.length ? vals : true;
+      } else if (i + 1 < argv.length && !argv[i + 1].startsWith("--")) { val = argv[++i]; }
       if (key in flags) flags[key] = [].concat(flags[key], val);
-      else flags[key] = val;
+      else flags[key] = VARIADIC.has(key) && val !== true && !Array.isArray(val) ? [val] : val;
     } else _.push(a);
   }
   return { _, flags };

@@ -16,6 +16,24 @@ test("repeated flags collect into an array", () => {
   assert.deepStrictEqual(r.flags.h, ["a", "b"]);
 });
 
+test("variadic flags greedily consume space-separated values", () => {
+  const r = parseArgs(["add-table", "--headers", "A", "B", "C", "--row-header"]);
+  assert.deepStrictEqual(r.flags.headers, ["A", "B", "C"]);
+  assert.strictEqual(r.flags["row-header"], true);
+  assert.deepStrictEqual(r._, ["add-table"]);
+});
+
+test("variadic flag with one value still yields an array", () => {
+  const r = parseArgs(["x", "--headers", "Only"]);
+  assert.deepStrictEqual(r.flags.headers, ["Only"]);
+});
+
+test("non-variadic flag consumes exactly one token", () => {
+  const r = parseArgs(["show", "--title", "A", "extra"]);
+  assert.strictEqual(r.flags.title, "A");
+  assert.deepStrictEqual(r._, ["show", "extra"]);
+});
+
 test("treeView shows ids, titles and block summaries", () => {
   const obj = { title: "T", topics: [
     { id: "a", title: "A", blocks: [{ _id: "b1", type: "prereq" }, { _id: "b2", type: "text" }],

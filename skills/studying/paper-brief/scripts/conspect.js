@@ -44,6 +44,18 @@ function emitBlock(flags, topicId, block, pos) {
   return id;
 }
 
+// Resolve the block a row/item command targets: explicit <block-id>, or the
+// most-recently-created block of `type` via --last.
+function rowTarget(flags, pos, type, label) {
+  if (pos[0]) return pos[0];
+  if (flags.last) {
+    const bid = store.lastBlockOfType(store.load(storePath(flags)), type);
+    if (!bid) fail("no " + type + " block exists for --last");
+    return bid;
+  }
+  fail(label + " needs <block-id> or --last");
+}
+
 // Mutate an existing block in place, re-validate it, save.
 function mutateBlock(flags, bid, fn) {
   const p = storePath(flags); const obj = store.load(p);
@@ -141,16 +153,18 @@ const commands = {
     const headers = [].concat(flags.headers || []).filter((h) => typeof h === "string");
     if (!headers.length) fail("add-table needs --headers");
     const b = { type: "table", headers, rows: [] };
-    if (flags.align) b.align = [].concat(flags.align);
+    const align = [].concat(flags.align || []).filter((a) => typeof a === "string");
+    if (align.length) b.align = align;
     if (flags["row-header"]) b.rowHeader = true;
     if (typeof flags.caption === "string") b.caption = flags.caption;
     // Full table validation (>=1 row) is deferred to build; insert the empty shell now.
     const p = storePath(flags); const obj = store.load(p);
+    if (typeof flags.id === "string") b._id = store.uniqueBlockId(obj, flags.id);
     const id = store.insertBlock(obj, flags.topic, b, flags.pos);
     store.save(p, obj); say("add-table", id);
   },
   "add-table-row"(flags, pos) {
-    const bid = pos[0]; if (!bid) fail("add-table-row needs <block-id>");
+    const bid = rowTarget(flags, pos, "table", "add-table-row");
     const cells = [].concat(flags.cell || []).filter((c) => typeof c === "string");
     mutateBlock(flags, bid, (blk) => {
       if (cells.length !== blk.headers.length) throw new Error("row has " + cells.length + " cells, expected " + blk.headers.length);
@@ -163,11 +177,13 @@ const commands = {
   "add-resources"(flags) {
     req(flags.topic, "--topic");
     const p = storePath(flags); const obj = store.load(p);
-    const id = store.insertBlock(obj, flags.topic, { type: "resources", items: [] }, flags.pos);
+    const b = { type: "resources", items: [] };
+    if (typeof flags.id === "string") b._id = store.uniqueBlockId(obj, flags.id);
+    const id = store.insertBlock(obj, flags.topic, b, flags.pos);
     store.save(p, obj); say("add-resources", id);
   },
   "add-resource-item"(flags, pos) {
-    const bid = pos[0]; if (!bid) fail("add-resource-item needs <block-id>");
+    const bid = rowTarget(flags, pos, "resources", "add-resource-item");
     const item = {
       title: must(typeof flags.title === "string" ? flags.title : undefined, "--title"),
       url: must(typeof flags.url === "string" ? flags.url : undefined, "--url"),
@@ -221,7 +237,7 @@ const commands = {
     const obj = store.load(storePath(flags));
     const r = validate.validateDocument(obj);
     const tpl = fs.readFileSync(path.join(__dirname, "..", "templates", "template.html"), "utf8");
-    const html = render.splice(tpl, render.serialize(obj));
+    const html = render.spliceTitle(render.splice(tpl, render.serialize(obj)), obj.title);
     const outPath = path.join(outDir, name + ".html");
     fs.writeFileSync(outPath, html);
     for (const w of r.warnings) console.error(w);
@@ -229,11 +245,26 @@ const commands = {
   },
 };
 
+// Max positional args each command accepts (excluding the command word). Extra
+// positionals are a sign a multi-value flag was mis-typed as space-separated —
+// fail loudly instead of silently dropping them.
+const MAXPOS = {
+  init: 0, "set-meta": 0, tree: 0, show: 1, validate: 0, build: 2,
+  "add-topic": 0, "edit-topic": 1, "move-topic": 1, "remove-topic": 1,
+  "add-text": 0, "add-attention": 0, "add-formula": 0, "add-image": 0,
+  "add-table": 0, "add-table-row": 1, "add-resources": 0, "add-resource-item": 1,
+  "add-block": 0, "edit-block": 1, "move-block": 1, "remove-block": 1,
+};
+
 function main() {
   const { _, flags } = cli.parseArgs(process.argv.slice(2));
   const cmd = _[0];
   if (!cmd || !commands[cmd]) fail("unknown command: " + (cmd || "(none)"));
-  try { commands[cmd](flags, _.slice(1)); }
+  const extra = _.slice(1);
+  if (cmd in MAXPOS && extra.length > MAXPOS[cmd])
+    fail('unexpected argument "' + extra[MAXPOS[cmd]] + '" for ' + cmd +
+         " — repeat the flag (e.g. --headers A --headers B) or quote a multi-word value");
+  try { commands[cmd](flags, extra); }
   catch (e) { fail(e.message); }
 }
 main();

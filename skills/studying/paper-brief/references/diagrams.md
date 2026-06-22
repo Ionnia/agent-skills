@@ -5,10 +5,23 @@ figure. In a paper brief the priority is reversed from a from-scratch note: **th
 paper's own figure comes first** when it carries the idea. Use the first that fits:
 
 1. **The paper's real figure (raster, inlined as WebP)** — extract it from the PDF with
-   `scripts/pdf-figures.py` (`--images` for embedded figures, `--pages`/`--rect` to
-   render a region), then inline via `scripts/image-to-inline.py` into the block's
-   `src`. Attribute the source in the `caption` (e.g. "Рис. 3 из статьи"). This is the
-   default whenever the paper has a usable figure for the point you're making.
+   `scripts/pdf-figures.py`, then inline via `scripts/image-to-inline.py` into the
+   block's `src`. Attribute the source in the `caption` (e.g. "Рис. 3 из статьи"). This
+   is the default whenever the paper has a usable figure for the point you're making.
+
+   **Extraction modes and coordinates.** Coordinates for `--rect`/`--auto` are PDF
+   points (72 per inch), origin at the page **top-left**, matching what the Read tool
+   shows. `--images` returns only *embedded rasters* — vector composites (radar,
+   architecture, loss curves) will **not** appear there; use `--auto`/`--rect` for those.
+   - `--auto` — best first try for vector figures. Pass the paper's own caption
+     word(s) you saw while reading it: `--label Figure` (repeatable, e.g.
+     `--label Fig. --label Рис.`) or a full `--caption-re '<regex>'`. It crops the
+     region above each caption and **prints a ready `--rect` per figure**; if a crop is
+     too tall or too tight, tweak that printed rect and re-run with `--rect`.
+   - `--rect "page,x0,y0,x1,y1"` — render one explicit region (good after `--auto`).
+   - `--pages 4` then crop, or `--grid 4` to render a page with a labeled point ruler
+     when `--auto` finds no caption to anchor on.
+   - `--images` — only when the figure you need is a genuine embedded raster.
 2. **SVG** — a redrawn schematic, used to *simplify* a figure too cluttered to reuse, or
    when the paper has none. Inline `<svg>` markup in the block's `svg` field, up to ~300
    elements.

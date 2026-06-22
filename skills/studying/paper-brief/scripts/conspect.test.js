@@ -58,6 +58,24 @@ test("add-text / add-formula / add-image build valid blocks", () => {
   assert.strictEqual(obj.topics[0].blocks[1].tex, "\\frac{a}{b}");
 });
 
+test("stray positional after a single-value flag fails loudly", () => {
+  const dir = tmp();
+  run(["init", "--title", "T"], { cwd: dir });
+  run(["add-topic", "--title", "A", "--id", "a"], { cwd: dir });
+  const r = run(["add-text", "--topic", "a", "STRAY"], { cwd: dir, input: "<p>x</p>" });
+  assert.notStrictEqual(r.status, 0);
+  assert.match(r.stderr, /unexpected argument/);
+});
+
+test("add-table accepts space-separated --headers and --cell", () => {
+  const dir = tmp();
+  run(["init", "--title", "T"], { cwd: dir });
+  run(["add-topic", "--title", "A", "--id", "a"], { cwd: dir });
+  const bid = lastTok(run(["add-table", "--topic", "a", "--headers", "H1", "H2", "H3"], { cwd: dir }));
+  assert.strictEqual(run(["add-table-row", bid, "--cell", "x", "y", "z"], { cwd: dir }).status, 0);
+  assert.deepStrictEqual(readStore(dir).topics[0].blocks[0].headers, ["H1", "H2", "H3"]);
+});
+
 test("table built via add-table + add-table-row validates row width", () => {
   const dir = tmp();
   run(["init", "--title", "T"], { cwd: dir });
@@ -65,6 +83,28 @@ test("table built via add-table + add-table-row validates row width", () => {
   const bid = lastTok(run(["add-table", "--topic", "a", "--headers", "H1", "--headers", "H2"], { cwd: dir }));
   assert.strictEqual(run(["add-table-row", bid, "--cell", "x", "--cell", "y"], { cwd: dir }).status, 0);
   assert.notStrictEqual(run(["add-table-row", bid, "--cell", "only"], { cwd: dir }).status, 0);
+});
+
+test("add-table --id + add-table-row --last batch without round-trip", () => {
+  const dir = tmp();
+  run(["init", "--title", "T"], { cwd: dir });
+  run(["add-topic", "--title", "A", "--id", "a"], { cwd: dir });
+  assert.strictEqual(run(["add-table", "--topic", "a", "--id", "tbl", "--headers", "H1", "H2"], { cwd: dir }).status, 0);
+  assert.strictEqual(run(["add-table-row", "tbl", "--cell", "a", "b"], { cwd: dir }).status, 0);
+  assert.strictEqual(run(["add-table-row", "--last", "--cell", "c", "d"], { cwd: dir }).status, 0);
+  const blk = readStore(dir).topics[0].blocks[0];
+  assert.strictEqual(blk._id, "tbl");
+  assert.deepStrictEqual(blk.rows, [["a", "b"], ["c", "d"]]);
+});
+
+test("duplicate --id is rejected", () => {
+  const dir = tmp();
+  run(["init", "--title", "T"], { cwd: dir });
+  run(["add-topic", "--title", "A", "--id", "a"], { cwd: dir });
+  run(["add-table", "--topic", "a", "--id", "dup", "--headers", "H"], { cwd: dir });
+  const r = run(["add-resources", "--topic", "a", "--id", "dup"], { cwd: dir });
+  assert.notStrictEqual(r.status, 0);
+  assert.match(r.stderr, /already exists/);
 });
 
 test("resources built via add-resources + add-resource-item", () => {
@@ -98,6 +138,7 @@ test("build renders HTML from a prereq-free brief store", () => {
   assert.strictEqual(r.status, 0, r.stderr);
   const html = fs.readFileSync(path.join(dir, "out.html"), "utf8");
   assert.ok(html.includes("Brief") && html.includes("<p>body</p>"));
+  assert.match(html, /<title>Brief<\/title>/);
   assert.ok(html.includes("/*__CONSPECT_DATA_START__*/"), "markers preserved");
   assert.ok(!html.includes("_id"), "internal ids stripped");
 });

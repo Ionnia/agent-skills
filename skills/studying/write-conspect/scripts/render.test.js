@@ -1,7 +1,14 @@
 "use strict";
 const { test } = require("node:test");
 const assert = require("node:assert");
-const { splice, serialize, START, END } = require("./render.js");
+const { splice, serialize, spliceTitle, START, END } = require("./render.js");
+
+test("spliceTitle replaces the static title and escapes HTML", () => {
+  const tpl = `<head><title>Конспект</title></head>`;
+  const out = spliceTitle(tpl, 'A & B <x>');
+  assert.match(out, /<title>A &amp; B &lt;x&gt;<\/title>/);
+  assert.ok(!out.includes("Конспект"));
+});
 
 test("splice inserts data between the markers and preserves them", () => {
   const tpl = `head ${START}\nOLD\n${END} tail`;

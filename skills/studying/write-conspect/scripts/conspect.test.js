@@ -112,6 +112,24 @@ test("multi-item selfcheck builds items one at a time", () => {
   assert.strictEqual(obj.topics[0].blocks[1].items[0].a, "ans");
 });
 
+test("--id + --last batch table and selfcheck without round-trip", () => {
+  const dir = tmp();
+  run(["init", "--title", "T"], { cwd: dir });
+  run(["add-topic", "--title", "A", "--id", "a"], { cwd: dir });
+  assert.strictEqual(run(["add-table", "--topic", "a", "--id", "tbl", "--headers", "H1", "H2"], { cwd: dir }).status, 0);
+  assert.strictEqual(run(["add-table-row", "--last", "--cell", "x", "y"], { cwd: dir }).status, 0);
+  assert.strictEqual(run(["add-selfcheck", "--topic", "a", "--id", "sc"], { cwd: dir }).status, 0);
+  assert.strictEqual(run(["add-selfcheck-item", "--last", "--a", "ans"], { cwd: dir, input: "q?" }).status, 0);
+  const obj = readStore(dir);
+  assert.strictEqual(store_block(obj, "tbl").rows[0][0], "x");
+  assert.strictEqual(store_block(obj, "sc").items[0].q, "q?");
+});
+
+function store_block(obj, id) {
+  for (const t of obj.topics) for (const b of t.blocks) if (b._id === id) return b;
+  return null;
+}
+
 test("table built via add-table + add-table-row validates row width", () => {
   const dir = tmp();
   run(["init", "--title", "T"], { cwd: dir });

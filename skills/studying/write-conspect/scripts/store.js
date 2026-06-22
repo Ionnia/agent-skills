@@ -39,6 +39,26 @@ function nextBlockId(obj) {
   return "b" + (max + 1);
 }
 
+function allBlocks(obj) {
+  const acc = [];
+  for (const t of allTopics(obj)) for (const b of t.blocks || []) acc.push(b);
+  return acc;
+}
+
+function uniqueBlockId(obj, id) {
+  if (allBlocks(obj).some((b) => b._id === id)) throw new Error("block id already exists: " + id);
+  return id;
+}
+
+// The last block of `type` in document order — i.e. the one most recently
+// appended (the common --last case). Document order, not the bN number, so an
+// explicit-id block created after an auto-id block still wins.
+function lastBlockOfType(obj, type) {
+  let best = null;
+  for (const b of allBlocks(obj)) if (b.type === type) best = b._id;
+  return best;
+}
+
 function findTopic(obj, id) {
   let found = null;
   (function walk(siblings) {
@@ -107,13 +127,14 @@ function rewriteLinks(obj, oldId, newId) {
 function insertBlock(obj, topicId, block, pos) {
   const f = findTopic(obj, topicId);
   if (!f) throw new Error("no topic with id " + topicId);
-  block._id = nextBlockId(obj);
+  if (!block._id) block._id = nextBlockId(obj);
   f.topic.blocks = f.topic.blocks || [];
   f.topic.blocks.splice(resolvePos(f.topic.blocks, pos, "_id"), 0, block);
   return block._id;
 }
 
 module.exports = {
-  DEFAULT_STORE, load, save, slugify, allTopics, uniqueTopicId, nextBlockId,
+  DEFAULT_STORE, load, save, slugify, allTopics, allBlocks, uniqueTopicId, nextBlockId,
+  uniqueBlockId, lastBlockOfType,
   findTopic, findBlock, resolvePos, insertTopic, removeTopic, rewriteLinks, insertBlock,
 };

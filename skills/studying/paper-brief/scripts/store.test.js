@@ -21,6 +21,28 @@ test("nextBlockId increments across the tree", () => {
   assert.strictEqual(s.nextBlockId({ topics: [{ id: "a", blocks: [] }] }), "b1");
 });
 
+test("uniqueBlockId rejects duplicates, accepts free ids", () => {
+  const obj = { topics: [{ id: "a", blocks: [{ _id: "b1", type: "table" }] }] };
+  assert.strictEqual(s.uniqueBlockId(obj, "t-main"), "t-main");
+  assert.throws(() => s.uniqueBlockId(obj, "b1"), /already exists/);
+});
+
+test("lastBlockOfType returns the last matching block in document order", () => {
+  const obj = { topics: [{ id: "a", blocks: [
+    { _id: "b1", type: "table" }, { _id: "b5", type: "table" }, { _id: "b3", type: "resources" },
+  ] }] };
+  assert.strictEqual(s.lastBlockOfType(obj, "table"), "b5");
+  assert.strictEqual(s.lastBlockOfType(obj, "resources"), "b3");
+  assert.strictEqual(s.lastBlockOfType(obj, "image"), null);
+});
+
+test("lastBlockOfType prefers a later custom-id block over an earlier auto id", () => {
+  const obj = { topics: [{ id: "a", blocks: [
+    { _id: "b1", type: "table" }, { _id: "custom", type: "table" },
+  ] }] };
+  assert.strictEqual(s.lastBlockOfType(obj, "table"), "custom");
+});
+
 test("findTopic / findBlock locate nodes", () => {
   const obj = { topics: [{ id: "a", blocks: [{ _id: "b1", type: "text" }], children: [{ id: "c", blocks: [] }] }] };
   assert.strictEqual(s.findTopic(obj, "c").topic.id, "c");

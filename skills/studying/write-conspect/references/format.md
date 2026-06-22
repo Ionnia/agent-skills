@@ -150,13 +150,15 @@ You never hand-write the data. `scripts/conspect.js` builds and validates a dura
 | `move-topic <id> [--parent <id>] [--pos …]` | Reparent / reorder. |
 | `remove-topic <id>` | Delete topic + subtree (reports dangling links). |
 | `set-prereq --topic <id> [--clear]` · `add-prereq-item --topic <id> --title <t> [--url] [--note]` | Fill the prereq block. |
-| `add-text` · `add-attention` · `add-example [--title]` `--topic <id>` | Prose blocks; html via stdin/`--in`. |
-| `add-formula --topic <id> --tex '…' [--explain-in <f>\|stdin] [--caption]` | Formula block. |
-| `add-image --topic <id> (--svg <f>\|--canvas <f>\|--src <f>\|--raster <img>) [--caption] [--aspect]` | Figure block. |
-| `add-selfcheck --topic <id>` · `add-selfcheck-item <block-id> [--a <ans>]` (q via stdin) | Self-check items. |
-| `add-table --topic <id> --headers <h> … [--align …] [--row-header] [--caption]` · `add-table-row <block-id> --cell … --cell …` | Table rows. |
-| `add-resources --topic <id>` · `add-resource-item <block-id> --title --url [--note]` | Further-reading list. |
-| `add-block --type <t> --topic <id>` · `edit-block <block-id>` · `move-block <block-id> --topic <id>` · `remove-block <block-id>` | Generic block ops (escape hatch). |
+| `add-text` · `add-attention` · `add-example [--title]` `--topic <id> [--pos …]` | Prose blocks; html via stdin/`--in`. |
+| `add-formula --topic <id> --tex '…' [--explain-in <f>\|stdin] [--caption] [--pos …]` | Formula block. |
+| `add-image --topic <id> (--svg <f>\|--canvas <f>\|--src <f>\|--raster <img>) [--caption] [--aspect] [--pos …]` | Figure block. |
+| `add-selfcheck --topic <id> [--id <id>] [--pos …]` · `add-selfcheck-item <block-id>\|--last [--a <ans>]` (q via stdin) | Self-check items. |
+| `add-table --topic <id> --headers <h> [<h> …] [--id <id>] [--align <a> …] [--row-header] [--caption] [--pos …]` · `add-table-row <block-id>\|--last --cell <c> [<c> …]` | Table; populate by `<block-id>` or `--last`. |
+| `add-resources --topic <id> [--id <id>] [--pos …]` · `add-resource-item <block-id>\|--last --title --url [--note]` | Further-reading list. |
+| `add-block --type <t> --topic <id> [--pos …]` · `edit-block <block-id>` · `move-block <block-id> --topic <id> [--pos …]` · `remove-block <block-id>` | Generic block ops (escape hatch). |
+
+**Flag conventions.** Multi-value flags (`--headers`, `--align`, `--cell`) take **space-separated** values (`--headers A B C`) or repeated flags (`--headers A --headers B`); a value that begins with `--` must use `--flag=value`. Stray positionals are rejected with an error rather than silently dropped. `--pos` works on **every** block-adding command and `move-block` (`end` \| `<n>` \| `before:<id>` \| `after:<id>`). Block-creating commands (`add-table`, `add-resources`, `add-selfcheck`) accept an explicit `--id <id>`; row/item commands (`add-table-row`, `add-resource-item`, `add-selfcheck-item`) accept `--last` to target the most-recently-created block of that type — so create + populate can run in one batch.
 
 `build` validates the whole store before writing: non-empty `title`, valid `lang`, ≥ 1 topic, unique kebab-case ids, `prereq` as each topic's first block, known block types, `formula` blocks with non-empty `tex`+`explain`, valid `table` shape, resolvable internal `#id` links, and a control-character scan. **On any failure it prints the error and writes no file (non-zero exit).** An `image` block with no `svg`/`canvas`/`src` prints a non-fatal `WARN` but still builds. On success it prints `OK: "<title>" — N topics → <path>`. The build is idempotent and repeatable.
 
