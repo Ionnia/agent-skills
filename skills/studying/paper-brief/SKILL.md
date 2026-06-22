@@ -99,7 +99,7 @@ Do **not** touch the user's own input materials or anything in the skill directo
 - Prefer the paper's real figures (extracted via `scripts/pdf-figures.py`, inlined via `scripts/image-to-inline.py`); redraw as SVG only to simplify or when the paper has none. Every `image` block carries a real figure (`svg`/`canvas`/`src`) — never the legacy text `placeholder`.
 - Formulas are always LaTeX via MathJax — never unicode pseudo-math (`x²`, `→`, `∑`) and never images of formulas. Use a `formula` block only for a load-bearing formula a reader would stumble on.
 - Brief language matches the user's paper/request; template UI language is set via the `lang` field.
-- The deliverable is `<brief-name>.html` built by `scripts/build.js` from the bundled `templates/template.html` — never hand-write the HTML shell, and never modify `templates/template.html` while producing a brief. (Fixing or maintaining the template itself is a separate, allowed task; bump the skill version when you do.)
+- The deliverable is `<brief-name>.html` built by `scripts/build.js` from the bundled `templates/template.html` — never hand-write the HTML shell, never modify `templates/template.html` itself.
 - After the `.html` is validated and delivered, delete all temporary files (downloaded PDF, extracted figures, data expression, scratch files). Never remove the user's input materials or the skill's own files.
 
 ## References
