@@ -4,7 +4,7 @@ description: Use when writing study notes (a conspect / конспект) on a t
 license: MIT
 metadata:
   author: Ionnia
-  version: "0.3.1"
+  version: "1.0.0"
 ---
 
 # Write Conspect
@@ -62,12 +62,13 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 
 ### 6. Render the HTML
 
-**Read [references/format.md](references/format.md) before producing any data** — it defines the exact `window.CONSPECT` schema, block types, math/tooltip conventions, the injection markers, and the build command. Then:
+**Read [references/format.md](references/format.md) before producing any data** — it defines the block schema, math/tooltip conventions, and the full `scripts/conspect.js` command reference. You do **not** hand-write `data.js`; you drive the toolkit, which builds and validates a durable `conspect.json` store one node at a time. All HTML/LaTeX/SVG content is passed via stdin or `--*-in <file>` — never typed into JSON — so escaping bugs cannot occur.
 
-1. Build the data object for the whole conspect and write it to a temp file (e.g. `data.js`) as a single JS expression. For each `image` block, generate a real figure per [references/diagrams.md](references/diagrams.md) — SVG (default), canvas (dense data), or an inlined WebP from `scripts/image-to-inline.py` (real imagery only).
-2. Run `node scripts/build.js data.js <conspect-name> [output-dir]`. It copies the template, splices the data, validates the structure, and writes `<conspect-name>.html` only if validation passes (it warns on any `image` block left without a figure).
-3. If the build reports a validation error, fix `data.js` and re-run.
-4. Deliver the file where the user expects output — pass the directory as `[output-dir]` or run the command there.
+1. **Create the store:** `node scripts/conspect.js init --title "…" [--lang en] [--store conspect.json]`. (Pass `--store <path>` on every command, or run from the output directory to use the default `conspect.json`.)
+2. **Add topics in pedagogical order:** `add-topic --title "…" [--id <id>] [--parent <id>] [--pos end|<n>|before:<id>|after:<id>]`. Each topic is created with its mandatory first `prereq` block; fill it with `add-prereq-item --topic <id> --title "…" [--url "#earlier-id"|https://…] [--note "…"]`.
+3. **Add blocks** (each `--topic <id>`, content via stdin or `--in <file>`): `add-text`, `add-attention`, `add-example [--title …]`; `add-formula --tex '…' --explain <stdin> [--caption …]`; `add-image` (one of `--svg <file>` / `--canvas <file>` / `--src <file>` / `--raster <img>`, plus `--caption`, `--aspect`) — generate a real figure per [references/diagrams.md](references/diagrams.md); `add-selfcheck` then `add-selfcheck-item <block-id>` (q via stdin, `--a <answer>`); `add-table --headers … [--align …] [--row-header] [--caption …]` then `add-table-row <block-id> --cell … --cell …`; `add-resources` then `add-resource-item <block-id> --title … --url …`.
+4. **Inspect cheaply** without re-reading everything: `tree` (structure + block ids), `show <topic-id|block-id>` (one node). Edit surgically by id: `edit-topic`, `move-topic`, `remove-topic`, `edit-block`, `move-block`, `remove-block`.
+5. **Render:** `node scripts/conspect.js build <conspect-name> [output-dir] [--store …]`. It validates the whole store (unique ids, prereq-first, resolvable internal links, figures present) and writes `<conspect-name>.html` only if validation passes; on any error it writes nothing and exits non-zero — fix and re-run.
 
 `templates/template.html` ships with a built-in sample conspect, so it can be opened directly for a design preview before building.
 
@@ -75,7 +76,7 @@ Hold the bar: intuitively clear, never oversimplified. The core rules (full set 
 
 The spliced `<conspect-name>.html` is fully self-contained — figures are inlined, no assets are referenced. So once it is validated and delivered, **delete every temporary file the build produced**, leaving the `.html` as the only artifact in the output location. Remove:
 
-- the data expression temp file (`data.js` or whatever you named it);
+- the store file (`conspect.json` or whatever you passed to `--store`);
 - any source/intermediate images fed to `scripts/image-to-inline.py` (the WebP is already inlined into the HTML);
 - any other scratch files, caches, or partial copies created in the output directory during the build.
 
@@ -83,7 +84,8 @@ Do **not** touch the user's own input materials or anything in the skill directo
 
 ## Hard rules
 
-- Always read `references/format.md` before writing any conspect data.
+- Always read `references/format.md` before writing any conspect data; author via `scripts/conspect.js` (a durable `conspect.json` store), never by hand-writing `data.js`.
+- Pass all HTML/LaTeX/SVG content through stdin or `--*-in <file>` — never embed it as a JSON/JS literal.
 - Always plan the full outline (step 3) before writing any topic content.
 - Always research each topic in high-quality sources and fact-check every taught claim before writing it (step 4), scaling effort to the stakes. Prefer primary/authoritative sources. Never present an unverified claim as established fact: if it can't be verified, flag it in the conspect rather than guessing.
 - Prerequisite ordering is non-negotiable: no topic may depend on a later one. Every topic's first block is its `prereq` block.
@@ -92,8 +94,8 @@ Do **not** touch the user's own input materials or anything in the skill directo
 - Every `image` block renders a real figure (`svg`/`canvas`/`src`) — never ship the legacy text `placeholder` in a new conspect. Default to inline SVG; see `references/diagrams.md`.
 - `selfcheck` and `attention` blocks only where they earn their place; an attention block with no real pitfall is noise.
 - Conspect language matches the user's materials/request; template UI language is set via the `lang` field.
-- The deliverable is `<conspect-name>.html` built by `scripts/build.js` from the bundled `templates/template.html` — never hand-write the HTML shell, never modify `templates/template.html` itself.
-- After the `.html` is validated and delivered, delete all temporary build files (data expression, intermediate/source images, scratch files). The `<conspect-name>.html` must be the only artifact left in the output location; never remove the user's input materials or the skill's own files.
+- The deliverable is `<conspect-name>.html` built by `node scripts/conspect.js build` from the bundled `templates/template.html` — never hand-write the HTML shell, never modify `templates/template.html` itself.
+- After the `.html` is validated and delivered, delete all temporary build files (the `conspect.json` store, intermediate/source images, scratch files). The `<conspect-name>.html` must be the only artifact left in the output location; never remove the user's input materials or the skill's own files.
 
 ## References
 
