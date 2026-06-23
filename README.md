@@ -4,7 +4,7 @@
 
 **Моя личная коллекция скиллов для AI-агентов** — ревью кода, продуктивность и учёба.
 
-[![skills](https://img.shields.io/badge/скиллов-6-6E56CF?style=flat-square)](#-скиллы)
+[![skills](https://img.shields.io/badge/скиллов-7-6E56CF?style=flat-square)](#-скиллы)
 [![categories](https://img.shields.io/badge/категории-3-3B82F6?style=flat-square)](#-скиллы)
 [![skills.sh](https://img.shields.io/badge/skills.sh-Ionnia%2Fagent--skills-111111?style=flat-square)](https://www.skills.sh)
 
@@ -43,6 +43,7 @@ npx skills add Ionnia/agent-skills
 | Скилл | Что делает |
 | --- | --- |
 | **`anki-flash-cards`** | Создание карточек Anki с упором на прочное понимание материала, а не дословный пересказ. |
+| **`paper-brief`** | Понятный самодостаточный разбор одной научной статьи (PDF, ссылка/ID arXiv или текст): перестраивает её в педагогическую логику, объясняет интуитивно, использует рисунки из самой статьи и собирает отдельный HTML-файл. |
 | **`write-conspect`** | Конспект (study notes) по теме или вашим материалам: планирует структуру, фактчекает по источникам, пишет объяснения уровня преподавателя и собирает отдельный HTML-файл. |
 
 <details>
